@@ -1,0 +1,108 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Конструктор мокапа — KraftVision</title>
+  <meta name="description" content="Продвинутый конструктор крафтового пакета и пергамента с логотипом, контактами и текстом." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+<body>
+  <div data-site-header></div>
+
+  <main class="page-main">
+    <section class="container page-head reveal">
+      <p class="eyebrow">Конструктор</p>
+      <h1>Дизайн-мокап упаковки</h1>
+      <p>Загрузите логотип, добавляйте тексты и контакты, двигайте элементы мышкой и скачивайте готовый мокап.</p>
+    </section>
+
+    <section class="container section">
+      <div class="kit-layout">
+        <aside class="kit-panel reveal">
+          <h3>Основные параметры</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="materialType">Тип основы</label>
+              <select id="materialType">
+                <option value="bag">Крафтовый пакет</option>
+                <option value="paper">Пергаментная бумага</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="baseColor">Цвет основы</label>
+              <input id="baseColor" type="color" value="#c8a174" />
+            </div>
+          </div>
+
+          <div class="field-wide">
+            <label for="logoUpload">Логотип (PNG/JPG/SVG)</label>
+            <input id="logoUpload" type="file" accept="image/png,image/jpeg,image/svg+xml" />
+          </div>
+
+          <div class="field-wide">
+            <label for="quickText">Быстрый текст</label>
+            <textarea id="quickText" placeholder="Например: BURGER HOUSE\nСвежо. Быстро. Вкусно."></textarea>
+          </div>
+
+          <div class="kit-actions">
+            <button class="btn btn-inline" type="button" id="addTextLayer">Добавить текст</button>
+          </div>
+
+          <h3 style="margin-top: 1rem;">Контакты на упаковке</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="contactPhone">Телефон</label>
+              <input id="contactPhone" type="text" placeholder="+998 ..." />
+            </div>
+            <div class="field">
+              <label for="contactEmail">Email</label>
+              <input id="contactEmail" type="text" placeholder="brand@mail.uz" />
+            </div>
+            <div class="field field-wide">
+              <label for="contactTelegram">Telegram / Instagram</label>
+              <input id="contactTelegram" type="text" placeholder="@brand" />
+            </div>
+          </div>
+          <div class="kit-actions">
+            <button class="btn btn-inline" type="button" id="addContactLayer">Добавить блок контактов</button>
+          </div>
+        </aside>
+
+        <div class="kit-canvas-wrap reveal">
+          <canvas id="designCanvas" width="1400" height="1000" aria-label="Конструктор мокапа"></canvas>
+          <p class="kit-help">Перетаскивайте слои мышкой. Для точной настройки используйте слайдеры справа или стрелки на клавиатуре.</p>
+          <div class="kit-actions">
+            <button class="btn" type="button" id="downloadDesign">Скачать PNG</button>
+            <button class="btn btn-secondary" type="button" id="resetLayers">Сбросить слои</button>
+          </div>
+        </div>
+
+        <aside class="kit-layers reveal">
+          <h3>Слои макета</h3>
+          <ul class="layer-list" id="layerList"></ul>
+
+          <div class="kit-actions">
+            <button class="btn btn-inline btn-secondary" type="button" id="moveUpLayer">Слой выше</button>
+            <button class="btn btn-inline btn-secondary" type="button" id="moveDownLayer">Слой ниже</button>
+            <button class="btn btn-inline btn-secondary" type="button" id="duplicateLayer">Дублировать</button>
+            <button class="btn btn-inline btn-danger" type="button" id="deleteLayer">Удалить</button>
+          </div>
+
+          <div class="kit-controls" id="layerControls"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div data-site-footer></div>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/renderers.js"></script>
+  <script src="assets/js/pages/constructor.js"></script>
+</body>
+</html>
