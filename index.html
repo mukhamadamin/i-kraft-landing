@@ -3,11 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>I-Kraft-Pack</title>
+    <title>I-Kraft-Pack — производство крафтовых пакетов</title>
     <link rel="icon" type="image/svg+xml" href="/assets/kraft.svg" />
+    <script>
+      // GitHub Pages SPA: restore path from redirect
+      (function () {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
+        }
+        var search = location.search;
+        if (search && search.indexOf("?p=/") === 0) {
+          var decoded = search.slice(3).replace(/~and~/g, "&");
+          var query = location.search
+            .slice(1)
+            .split("&")
+            .filter(function (s) {
+              return s.indexOf("p=") !== 0 && s.indexOf("q=") !== 0;
+            })
+            .join("&");
+          var qs = decoded.split("&q=");
+          history.replaceState(
+            null,
+            null,
+            location.pathname.split("/").slice(0, 2).join("/") +
+              qs[0] +
+              (qs[1] ? "?" + qs[1].replace(/~and~/g, "&") : "") +
+              (query ? (qs[1] ? "&" : "?") + query : "") +
+              location.hash,
+          );
+        }
+      })();
+    </script>
     <meta
       name="description"
-      content="Производство крафтовых пакетов и упаковки для лаваша, бургера и фри."
+      content="Производство крафтовых пакетов с фирменной печатью: с ручками и без, фастфуд-серия, пергамент. Собственное производство, тиражи от 2000 шт."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

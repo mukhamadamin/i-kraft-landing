@@ -11,7 +11,6 @@ const allLinks = [
   { to: "/clients", label: "Клиенты" },
   { to: "/works", label: "Наши работы" },
   { to: "/constructor", label: "Конструктор" },
-  { to: "/admin", label: "Панель управления" },
 ];
 
 export function Footer() {
@@ -20,15 +19,15 @@ export function Footer() {
   } = useStore();
 
   const year = new Date().getFullYear();
-  const featuredLinks = allLinks.filter((item) => ["/", "/products", "/catalog", "/news", "/works", "/constructor", "/admin"].includes(item.to));
+  const featuredLinks = allLinks.filter((item) => ["/", "/products", "/catalog", "/news", "/works", "/constructor"].includes(item.to));
 
   return (
     <footer className="site-footer">
       <div className="container footer-shell">
         <div className="footer-hero">
-          <p className="eyebrow">Упаковочное производство</p>
+          <p className="eyebrow">Производство крафтовых пакетов</p>
           <h4>{settings.companyName || "I-Kraft-Pack"}</h4>
-          <p>{settings.slogan || "Крафтовая упаковка, которая продает ваш бренд"}</p>
+          <p>{settings.slogan || "Крафтовые пакеты с фирменной печатью под ваш бренд"}</p>
           <div className="footer-cta-row">
             <Link to="/constructor" className="btn">
               Собрать дизайн
@@ -89,7 +88,7 @@ export function Footer() {
           <p>
             © {year} {settings.companyName || "I-Kraft-Pack"}. Все права защищены.
           </p>
-          <p>Производство упаковки для лаваша, бургеров и картофеля фри.</p>
+          <p>Собственное производство крафтовых пакетов и упаковки с фирменной печатью.</p>
         </div>
       </div>
     </footer>

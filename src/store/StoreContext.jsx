@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { defaultState } from "./defaultData";
 
 const STORAGE_KEY = "kraftvision.react.cms.v1";
@@ -6,44 +6,16 @@ const STORAGE_KEY = "kraftvision.react.cms.v1";
 const StoreContext = createContext(null);
 
 function deepClone(value) {
+  if (typeof structuredClone === "function") return structuredClone(value);
   return JSON.parse(JSON.stringify(value));
 }
 
 function translit(input) {
   const map = {
-    а: "a",
-    б: "b",
-    в: "v",
-    г: "g",
-    д: "d",
-    е: "e",
-    ё: "e",
-    ж: "zh",
-    з: "z",
-    и: "i",
-    й: "y",
-    к: "k",
-    л: "l",
-    м: "m",
-    н: "n",
-    о: "o",
-    п: "p",
-    р: "r",
-    с: "s",
-    т: "t",
-    у: "u",
-    ф: "f",
-    х: "h",
-    ц: "c",
-    ч: "ch",
-    ш: "sh",
-    щ: "sch",
-    ъ: "",
-    ы: "y",
-    ь: "",
-    э: "e",
-    ю: "yu",
-    я: "ya",
+    а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "e", ж: "zh",
+    з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n", о: "o",
+    п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "h", ц: "c",
+    ч: "ch", ш: "sh", щ: "sch", ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya",
   };
 
   return String(input || "")
@@ -65,6 +37,8 @@ function uid(prefix) {
   return `${prefix}_${Date.now()}_${random}`;
 }
 
+/* Нормализация формы данных — вызывается только при загрузке,
+   импорте и сбросе, а не на каждом изменении. */
 function ensureStateShape(raw) {
   const safe = raw && typeof raw === "object" ? deepClone(raw) : {};
   const base = deepClone(defaultState);
@@ -126,73 +100,99 @@ function readState() {
   }
 }
 
-function persist(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
 export function StoreProvider({ children }) {
-  const [state, setState] = useState(() => readState());
+  const [state, setState] = useState(readState);
+  const latestRef = useRef(state);
+  const persistTimer = useRef(null);
 
-  const commit = (updater) => {
-    setState((prev) => {
-      const next = ensureStateShape(typeof updater === "function" ? updater(prev) : updater);
-      persist(next);
-      return next;
-    });
-  };
+  latestRef.current = state;
+
+  const flushPersist = useCallback(() => {
+    if (persistTimer.current) {
+      clearTimeout(persistTimer.current);
+      persistTimer.current = null;
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(latestRef.current));
+    } catch (_error) {
+      /* переполнение хранилища не должно ронять интерфейс */
+    }
+  }, []);
+
+  const schedulePersist = useCallback(() => {
+    if (persistTimer.current) clearTimeout(persistTimer.current);
+    persistTimer.current = setTimeout(flushPersist, 250);
+  }, [flushPersist]);
+
+  useEffect(() => {
+    window.addEventListener("pagehide", flushPersist);
+    return () => {
+      window.removeEventListener("pagehide", flushPersist);
+      flushPersist();
+    };
+  }, [flushPersist]);
+
+  const commit = useCallback(
+    (updater) => {
+      setState((prev) => (typeof updater === "function" ? updater(prev) : updater));
+      schedulePersist();
+    },
+    [schedulePersist],
+  );
 
   const api = useMemo(() => {
     const getCollection = (name) => (Array.isArray(state[name]) ? state[name] : []);
 
     const addItem = (collection, payload) => {
       commit((prev) => {
-        const next = deepClone(prev);
-        if (!Array.isArray(next[collection])) return next;
+        if (!Array.isArray(prev[collection])) return prev;
 
         const item = { ...payload, id: payload.id || uid(collection.slice(0, 3)) };
         if (collection === "categories") {
           item.slug = item.slug || toSlug(item.title || "category");
         }
 
-        next[collection].unshift(item);
-        return next;
+        return { ...prev, [collection]: [item, ...prev[collection]] };
       });
     };
 
     const updateItem = (collection, id, patch) => {
       commit((prev) => {
-        const next = deepClone(prev);
-        if (!Array.isArray(next[collection])) return next;
+        if (!Array.isArray(prev[collection])) return prev;
 
-        const index = next[collection].findIndex((item) => item.id === id);
-        if (index === -1) return next;
+        const index = prev[collection].findIndex((item) => item.id === id);
+        if (index === -1) return prev;
 
-        const merged = { ...next[collection][index], ...patch };
+        const merged = { ...prev[collection][index], ...patch };
         if (collection === "categories") {
           merged.slug = merged.slug || toSlug(merged.title || "category");
         }
 
-        next[collection][index] = merged;
-        return next;
+        const list = [...prev[collection]];
+        list[index] = merged;
+        return { ...prev, [collection]: list };
       });
     };
 
     const deleteItem = (collection, id) => {
       commit((prev) => {
-        const next = deepClone(prev);
-        if (!Array.isArray(next[collection])) return next;
+        if (!Array.isArray(prev[collection])) return prev;
 
-        next[collection] = next[collection].filter((item) => item.id !== id);
+        const next = { ...prev, [collection]: prev[collection].filter((item) => item.id !== id) };
 
         if (collection === "categories") {
-          next.products = next.products.map((item) =>
+          next.products = prev.products.map((item) =>
             item.categoryId === id ? { ...item, categoryId: "" } : item,
           );
-          next.works = next.works.map((item) => (item.categoryId === id ? { ...item, categoryId: "" } : item));
+          next.works = prev.works.map((item) =>
+            item.categoryId === id ? { ...item, categoryId: "" } : item,
+          );
         }
 
         if (collection === "clients") {
-          next.works = next.works.map((item) => (item.clientId === id ? { ...item, clientId: "" } : item));
+          next.works = (next.works || prev.works).map((item) =>
+            item.clientId === id ? { ...item, clientId: "" } : item,
+          );
         }
 
         return next;
@@ -231,7 +231,7 @@ export function StoreProvider({ children }) {
       reset,
       exportState: () => deepClone(state),
     };
-  }, [state]);
+  }, [state, commit]);
 
   return <StoreContext.Provider value={api}>{children}</StoreContext.Provider>;
 }

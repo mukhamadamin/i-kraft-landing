@@ -27,7 +27,7 @@ export function Header() {
             <img src="/assets/kraft.svg" alt="I-Kraft-Pack" className="brand-logo-img" />
             <span className="brand-stack">
               <span className="brand-name">{settings.companyName || "I-Kraft-Pack"}</span>
-              <span className="brand-sub">{settings.slogan || "Крафтовая упаковка"}</span>
+              <span className="brand-sub">{settings.slogan || "Производство крафтовых пакетов"}</span>
             </span>
           </Link>
 
@@ -46,9 +46,6 @@ export function Header() {
                 {item.label}
               </NavLink>
             ))}
-            <Link to="/admin" className="nav-link nav-link-admin" onClick={() => setOpen(false)}>
-              Управление
-            </Link>
           </nav>
 
           <div className="nav-meta">

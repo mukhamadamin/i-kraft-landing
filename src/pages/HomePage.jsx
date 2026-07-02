@@ -36,20 +36,19 @@ const IconAward = () => (
   </svg>
 );
 
-const IconRoll = () => (
+const IconBag = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 6c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v1H3V6z"/>
-    <path d="M3 7h18v2a9 9 0 0 1-9 9 9 9 0 0 1-9-9V7z"/>
-    <path d="M9 12a3 3 0 0 0 6 0"/>
+    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <path d="M16 10a4 4 0 0 1-8 0"/>
   </svg>
 );
 
-const IconBurger = () => (
+const IconPrint = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 19h16a2 2 0 0 0 2-2v-1H2v1a2 2 0 0 0 2 2z"/>
-    <path d="M2 14h20"/>
-    <path d="M2 11h20"/>
-    <path d="M4 5h16a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V7a2 2 0 0 1 2-2z"/>
+    <polyline points="6 9 6 2 18 2 18 9"/>
+    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+    <rect x="6" y="14" width="12" height="8"/>
   </svg>
 );
 
@@ -103,7 +102,7 @@ export function HomePage() {
     <>
       <section className="hero container reveal-item">
         <div>
-          <p className="eyebrow"><IconDiamond /> Производство упаковки</p>
+          <p className="eyebrow"><IconDiamond /> Производство крафтовых пакетов</p>
           <h1>{settings.heroTitle}</h1>
           <p>{settings.heroSubtitle}</p>
           <div className="hero-actions">
@@ -141,21 +140,21 @@ export function HomePage() {
         <div className="hero-visual">
           <div className="hero-bg-blob" />
           <div className="float-card float-card-a">
-            <span className="float-card-icon"><IconRoll /></span>
-            <small>Лаваш</small>
-            <strong>Wrap Pack</strong>
-            <span className="float-card-tag">Эко-материал</span>
+            <span className="float-card-icon"><IconBag /></span>
+            <small>Крафт-пакеты</small>
+            <strong>С кручеными ручками</strong>
+            <span className="float-card-tag">Наше производство</span>
           </div>
           <div className="float-card float-card-b">
-            <span className="float-card-icon"><IconBurger /></span>
-            <small>Бургер</small>
-            <strong>Green Line</strong>
+            <span className="float-card-icon"><IconPrint /></span>
+            <small>Фирменная печать</small>
+            <strong>Логотип до 3 цветов</strong>
             <span className="float-card-tag">Брендинг</span>
           </div>
           <div className="float-card float-card-c">
             <span className="float-card-icon"><IconFries /></span>
-            <small>Картофель фри</small>
-            <strong>Express Pocket</strong>
+            <small>Фастфуд-серия</small>
+            <strong>Бургер · Лаваш · Фри</strong>
             <span className="float-card-tag">Быстрая печать</span>
           </div>
         </div>
