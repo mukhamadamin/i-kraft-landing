@@ -1,0 +1,18 @@
+# Зависимости ставятся из package-lock.json командой npm ci
+node_modules/
+
+# Сборка публикуется в ветку gh-pages, в исходниках ей не место
+dist/
+.vite/
+
+# Локальные окружения и мусор ОС
+.env
+.env.*
+!.env.example
+*.local
+.DS_Store
+Thumbs.db
+
+# Логи
+npm-debug.log*
+yarn-error.log*

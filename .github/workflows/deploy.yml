@@ -1,0 +1,68 @@
+name: Deploy
+
+# Публикуем сайт при каждом пуше в main.
+# Кнопка «Run workflow» во вкладке Actions запускает деплой вручную.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Нужно право записи: сборка уезжает в ветку gh-pages
+permissions:
+  contents: write
+
+# Два деплоя подряд не мешают друг другу — доезжает только последний
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Забрать исходники
+        uses: actions/checkout@v4
+
+      - name: Поставить Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Установить зависимости
+        run: npm ci
+
+      - name: Собрать
+        run: npm run build
+
+      - name: Опубликовать в gh-pages
+        env:
+          OUT: ${{ runner.temp }}/gh-pages
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Отдельное рабочее дерево: основную копию не трогаем
+          git fetch origin gh-pages --depth=1
+          git worktree add "$OUT" origin/gh-pages
+
+          # Полная замена содержимого — удалённые файлы не остаются висеть
+          find "$OUT" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          cp -r dist/. "$OUT"/
+
+          cd "$OUT"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "Сборка не изменилась — публиковать нечего"
+            exit 0
+          fi
+
+          git commit -m "Deploy ${GITHUB_SHA::7}"
+          git push origin HEAD:gh-pages
+
+      - name: Итог
+        run: echo "Опубликовано → https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
