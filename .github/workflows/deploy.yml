@@ -45,8 +45,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          # actions/checkout настраивает refspec только под main, поэтому
+          # ссылку origin/gh-pages создаём явным refspec — иначе fetch
+          # запишет лишь FETCH_HEAD и worktree не найдёт ветку.
+          git fetch origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages --depth=1
+
           # Отдельное рабочее дерево: основную копию не трогаем
-          git fetch origin gh-pages --depth=1
           git worktree add "$OUT" origin/gh-pages
 
           # Полная замена содержимого — удалённые файлы не остаются висеть
