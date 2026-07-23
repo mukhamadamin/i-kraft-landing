@@ -2,6 +2,7 @@
 import { useStore } from "../store/StoreContext";
 import { PageHead } from "../components/PageHead";
 import { EmptyState } from "../components/Cards";
+import { Reveal } from "../components/motion";
 
 export function ProductDetailPage() {
   const { id } = useParams();
@@ -26,7 +27,7 @@ export function ProductDetailPage() {
     <>
       <PageHead eyebrow="Карточка" title="Детали продукта" subtitle="Информация о характеристиках и тираже." />
       <section className="container">
-        <div className="article reveal-item">
+        <Reveal className="article" variant="blur">
           <div className="article-cover">
             {product.image ? <img src={product.image} alt={product.title} /> : <div className="image-fallback">{product.title}</div>}
           </div>
@@ -53,10 +54,10 @@ export function ProductDetailPage() {
                 ))}
             </div>
           </div>
-        </div>
+        </Reveal>
 
         <div className="two-col section">
-          <aside className="sidebar-card reveal-item">
+          <Reveal as="aside" className="sidebar-card" delay={80}>
             <h3>Связаться по заказу</h3>
             <p>
               <strong>Телефон:</strong> {settings.phone || "-"}
@@ -70,9 +71,9 @@ export function ProductDetailPage() {
             <Link className="btn" to="/constructor">
               Собрать мокап бренда
             </Link>
-          </aside>
+          </Reveal>
 
-          <div className="sidebar-card reveal-item">
+          <Reveal className="sidebar-card" delay={160}>
             <h3>Похожие позиции</h3>
             <div className="chip-row">
               {related.length
@@ -83,7 +84,7 @@ export function ProductDetailPage() {
                   ))
                 : "Пока нет похожих позиций"}
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
     </>

@@ -2,6 +2,7 @@
 import { useStore } from "../store/StoreContext";
 import { ProductCard, EmptyState } from "../components/Cards";
 import { PageHead } from "../components/PageHead";
+import { Stagger } from "../components/motion";
 
 export function CatalogPage() {
   const [params] = useSearchParams();
@@ -43,9 +44,9 @@ export function CatalogPage() {
       </PageHead>
 
       <section className="container section">
-        <div className="grid-cards">
+        <Stagger className="grid-cards" step={90} key={selected}>
           {filtered.length ? filtered.map((item) => <ProductCard key={item.id} item={item} categoryName={categoryMap[item.categoryId]?.title} />) : <EmptyState text="По выбранной категории товаров не найдено." />}
-        </div>
+        </Stagger>
       </section>
     </>
   );

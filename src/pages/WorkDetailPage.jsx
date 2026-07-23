@@ -3,6 +3,7 @@ import { useStore } from "../store/StoreContext";
 import { formatDate } from "../utils/format";
 import { PageHead } from "../components/PageHead";
 import { EmptyState } from "../components/Cards";
+import { Reveal } from "../components/motion";
 
 export function WorkDetailPage() {
   const { id } = useParams();
@@ -27,7 +28,7 @@ export function WorkDetailPage() {
     <>
       <PageHead eyebrow="Кейс" title="История проекта" subtitle="От задачи клиента до результата" />
       <section className="container">
-        <div className="article reveal-item">
+        <Reveal className="article" variant="blur">
           <div className="article-cover">
             {work.image ? <img src={work.image} alt={work.title} /> : <div className="image-fallback">{work.title}</div>}
           </div>
@@ -52,9 +53,9 @@ export function WorkDetailPage() {
               </p>
             </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="section sidebar-card reveal-item">
+        <Reveal className="section sidebar-card" delay={80}>
           <h3>Другие кейсы</h3>
           <div className="chip-row">
             {related.length
@@ -65,7 +66,7 @@ export function WorkDetailPage() {
                 ))
               : "Пока нет других кейсов"}
           </div>
-        </div>
+        </Reveal>
       </section>
     </>
   );

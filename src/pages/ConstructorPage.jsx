@@ -9,6 +9,15 @@ const H = 1000;
 const DESIGN_KEY = "kraftvision.constructor.v2";
 const HANDLE_HIT = 26;
 const SNAP_TOLERANCE = 1.6;
+const MIN_ZOOM = 0.35;
+const MAX_ZOOM = 4;
+const PROJECTS_KEY = "kraftvision.constructor.projects.v1";
+
+const SHAPES = [
+  { id: "rect", label: "Плашка" },
+  { id: "line", label: "Линия" },
+  { id: "ellipse", label: "Круг" },
+];
 
 const MATERIALS = [
   { id: "bag", label: "Крафт-пакет", icon: "🛍️" },
@@ -133,11 +142,18 @@ function buildDefaultLayer(companyName) {
   };
 }
 
+function layerKind(raw) {
+  if (raw.type === "logo") return "logo";
+  if (raw.type === "shape") return "shape";
+  return "text";
+}
+
 function normalizeLayer(raw) {
+  const kind = layerKind(raw);
   const base = {
-    id: raw.id || uid(raw.type === "logo" ? "logo" : "txt"),
-    type: raw.type === "logo" ? "logo" : "text",
-    name: raw.name || (raw.type === "logo" ? "Логотип" : "Текст"),
+    id: raw.id || uid(kind === "logo" ? "logo" : kind === "shape" ? "shp" : "txt"),
+    type: kind,
+    name: raw.name || (kind === "logo" ? "Логотип" : kind === "shape" ? "Фигура" : "Текст"),
     x: clamp(Number(raw.x ?? 50), 0, 100),
     y: clamp(Number(raw.y ?? 50), 0, 100),
     rotation: clamp(Number(raw.rotation ?? 0), -180, 180),
@@ -151,6 +167,21 @@ function normalizeLayer(raw) {
       ...base,
       imageSrc: String(raw.imageSrc || ""),
       size: clamp(Number(raw.size ?? 40), 8, 150),
+      flipX: Boolean(raw.flipX),
+      flipY: Boolean(raw.flipY),
+      mono: Boolean(raw.mono),
+      monoColor: raw.monoColor || "#14593f",
+    };
+  }
+
+  if (base.type === "shape") {
+    return {
+      ...base,
+      shape: SHAPES.some((s) => s.id === raw.shape) ? raw.shape : "rect",
+      w: clamp(Number(raw.w ?? 60), 2, 200),
+      h: clamp(Number(raw.h ?? 14), 0.4, 200),
+      color: raw.color || "#14593f",
+      radius: clamp(Number(raw.radius ?? 0), 0, 200),
     };
   }
 
@@ -163,6 +194,9 @@ function normalizeLayer(raw) {
     align: ["left", "center", "right"].includes(raw.align) ? raw.align : "center",
     font: raw.font || FONTS[0].value,
     letterSpacing: clamp(Number(raw.letterSpacing ?? 0), 0, 30),
+    lineHeight: clamp(Number(raw.lineHeight ?? 1.22), 0.8, 2.4),
+    strokeWidth: clamp(Number(raw.strokeWidth ?? 0), 0, 12),
+    strokeColor: raw.strokeColor || "#ffffff",
     uppercase: Boolean(raw.uppercase),
   };
 }
@@ -180,6 +214,26 @@ function loadSavedDesign() {
     };
   } catch (_error) {
     return null;
+  }
+}
+
+/* Именованные проекты: несколько сохранённых макетов в localStorage */
+function loadProjects() {
+  try {
+    const raw = localStorage.getItem(PROJECTS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_error) {
+    return [];
+  }
+}
+
+function persistProjects(list) {
+  try {
+    localStorage.setItem(PROJECTS_KEY, JSON.stringify(list));
+    return true;
+  } catch (_error) {
+    return false;
   }
 }
 
@@ -304,6 +358,9 @@ export function ConstructorPage() {
     drag: null,
     live: null,
     guides: { v: false, h: false },
+    view: { zoom: 1, x: 0, y: 0 },
+    pan: null,
+    spaceHeld: false,
   });
 
   const historyRef = useRef({ past: [], future: [], lastPush: 0 });
@@ -320,6 +377,14 @@ export function ConstructorPage() {
   const [contactEmail, setContactEmail] = useState("");
   const [contactTelegram, setContactTelegram] = useState("");
   const [notice, setNotice] = useState(null);
+  const [zoomPct, setZoomPct] = useState(100);
+  const [panelTab, setPanelTab] = useState("setup");
+  const [isDropping, setIsDropping] = useState(false);
+  const [exportScale, setExportScale] = useState(2);
+  const [exportTransparent, setExportTransparent] = useState(false);
+  const [projects, setProjects] = useState(loadProjects);
+  const [dragLayerId, setDragLayerId] = useState(null);
+  const fileImportRef = useRef(null);
 
   stateRef.current = { material, baseColor, layers, selectedLayerId };
 
@@ -674,6 +739,43 @@ export function ConstructorPage() {
     const rotation = area.rotation + degToRad(Number(layer.rotation || 0));
     const opacity = clamp(Number(layer.opacity || 100), 0, 100) / 100;
 
+    if (layer.type === "shape") {
+      const shapeW = area.w * (clamp(Number(layer.w ?? 60), 2, 200) / 100);
+      const shapeH = area.h * (clamp(Number(layer.h ?? 14), 0.4, 200) / 100);
+      ctx.save();
+      ctx.translate(center.x, center.y);
+      ctx.rotate(rotation);
+      ctx.globalAlpha = opacity;
+      ctx.fillStyle = layer.color || "#14593f";
+      if (layer.shape === "ellipse") {
+        ctx.beginPath();
+        ctx.ellipse(0, 0, shapeW / 2, shapeH / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const radius = layer.shape === "line" ? shapeH / 2 : clamp(Number(layer.radius || 0), 0, Math.min(shapeW, shapeH) / 2);
+        ctx.beginPath();
+        if (typeof ctx.roundRect === "function") {
+          ctx.roundRect(-shapeW / 2, -shapeH / 2, shapeW, shapeH, radius);
+        } else {
+          ctx.rect(-shapeW / 2, -shapeH / 2, shapeW, shapeH);
+        }
+        ctx.fill();
+      }
+      ctx.restore();
+      if (boundsOut) {
+        boundsOut.push({
+          id: layer.id,
+          x: center.x,
+          y: center.y,
+          width: shapeW,
+          height: shapeH,
+          rotation,
+          locked: layer.locked,
+        });
+      }
+      return;
+    }
+
     if (layer.type === "logo") {
       const image = runtimeRef.current.images.get(layer.imageSrc);
       if (!image) return;
@@ -683,7 +785,23 @@ export function ConstructorPage() {
       ctx.translate(center.x, center.y);
       ctx.rotate(rotation);
       ctx.globalAlpha = opacity;
-      ctx.drawImage(image, -targetWidth / 2, -targetHeight / 2, targetWidth, targetHeight);
+      ctx.scale(layer.flipX ? -1 : 1, layer.flipY ? -1 : 1);
+
+      if (layer.mono) {
+        /* Одноцветная печать: силуэт логотипа заливается краской.
+           Готовим на отдельном холсте, чтобы не портить сцену. */
+        const stencil = document.createElement("canvas");
+        stencil.width = Math.max(1, Math.round(targetWidth));
+        stencil.height = Math.max(1, Math.round(targetHeight));
+        const sctx = stencil.getContext("2d");
+        sctx.drawImage(image, 0, 0, stencil.width, stencil.height);
+        sctx.globalCompositeOperation = "source-in";
+        sctx.fillStyle = layer.monoColor || "#14593f";
+        sctx.fillRect(0, 0, stencil.width, stencil.height);
+        ctx.drawImage(stencil, -targetWidth / 2, -targetHeight / 2, targetWidth, targetHeight);
+      } else {
+        ctx.drawImage(image, -targetWidth / 2, -targetHeight / 2, targetWidth, targetHeight);
+      }
       ctx.restore();
       if (boundsOut) {
         boundsOut.push({
@@ -706,6 +824,8 @@ export function ConstructorPage() {
     const weight = layer.weight || "700";
     const align = layer.align || "center";
     const letterSpacing = clamp(Number(layer.letterSpacing || 0), 0, 30);
+    const lineRatio = clamp(Number(layer.lineHeight || 1.22), 0.8, 2.4);
+    const strokeWidth = clamp(Number(layer.strokeWidth || 0), 0, 12);
 
     ctx.save();
     ctx.translate(center.x, center.y);
@@ -721,15 +841,23 @@ export function ConstructorPage() {
 
     const widths = textLines.map((line) => ctx.measureText(line).width);
     const textWidth = widths.length ? Math.max(...widths) : fontSize * 2;
-    const lineHeight = fontSize * 1.22;
+    const lineHeight = fontSize * lineRatio;
     const textHeight = lineHeight * textLines.length;
 
     let anchorX = 0;
     if (align === "left") anchorX = -textWidth / 2;
     if (align === "right") anchorX = textWidth / 2;
 
+    if (strokeWidth > 0) {
+      ctx.lineJoin = "round";
+      ctx.lineWidth = strokeWidth * 2;
+      ctx.strokeStyle = layer.strokeColor || "#ffffff";
+    }
+
     textLines.forEach((line, index) => {
       const y = -textHeight / 2 + lineHeight * index + lineHeight / 2;
+      /* Обводка рисуется первой, иначе она съедает половину штриха буквы */
+      if (strokeWidth > 0) ctx.strokeText(line, anchorX, y);
       ctx.fillText(line, anchorX, y);
     });
     if ("letterSpacing" in ctx) {
@@ -753,6 +881,9 @@ export function ConstructorPage() {
   const drawSelection = (ctx) => {
     const rt = runtimeRef.current;
     const st = stateRef.current;
+    /* Ручки живут в мировых координатах, поэтому их размеры делим
+       на зум — на экране они всегда одного размера. */
+    const k = 1 / (rt.view.zoom || 1);
     rt.handles = null;
     if (!st.selectedLayerId) return;
 
@@ -761,17 +892,17 @@ export function ConstructorPage() {
     const bound = rt.bounds.find((item) => item.id === st.selectedLayerId);
     if (!bound) return;
 
-    const pad = 10;
+    const pad = 10 * k;
     const w = bound.width + pad * 2;
     const h = bound.height + pad * 2;
-    const rotateOffset = h / 2 + 38;
+    const rotateOffset = h / 2 + 38 * k;
 
     ctx.save();
     ctx.translate(bound.x, bound.y);
     ctx.rotate(bound.rotation);
     ctx.strokeStyle = layer.locked ? "rgba(100, 116, 139, 0.85)" : "rgba(14, 155, 95, 0.95)";
-    ctx.setLineDash(layer.locked ? [4, 5] : [10, 6]);
-    ctx.lineWidth = 2;
+    ctx.setLineDash(layer.locked ? [4 * k, 5 * k] : [10 * k, 6 * k]);
+    ctx.lineWidth = 2 * k;
     ctx.strokeRect(-w / 2, -h / 2, w, h);
 
     if (!layer.locked) {
@@ -785,12 +916,12 @@ export function ConstructorPage() {
       const drawHandle = (hx, hy, round) => {
         ctx.fillStyle = "#ffffff";
         ctx.strokeStyle = "rgba(14, 155, 95, 1)";
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 2.5 * k;
         ctx.beginPath();
         if (round) {
-          ctx.arc(hx, hy, 10, 0, Math.PI * 2);
+          ctx.arc(hx, hy, 10 * k, 0, Math.PI * 2);
         } else {
-          ctx.rect(hx - 9, hy - 9, 18, 18);
+          ctx.rect(hx - 9 * k, hy - 9 * k, 18 * k, 18 * k);
         }
         ctx.fill();
         ctx.stroke();
@@ -823,9 +954,10 @@ export function ConstructorPage() {
     ctx.save();
     ctx.translate(area.x + area.w / 2, area.y + area.h / 2);
     ctx.rotate(area.rotation);
+    const gk = 1 / (runtimeRef.current.view.zoom || 1);
     ctx.strokeStyle = "rgba(219, 39, 119, 0.85)";
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([7, 6]);
+    ctx.lineWidth = 1.5 * gk;
+    ctx.setLineDash([7 * gk, 6 * gk]);
     if (guides.v) {
       ctx.beginPath();
       ctx.moveTo(0, -area.h / 2 - 30);
@@ -848,13 +980,12 @@ export function ConstructorPage() {
     return st.layers.map((layer) => (layer.id === live.id ? { ...layer, ...live.patch } : layer));
   };
 
-  const paintScene = (ctx, { clean = false } = {}) => {
+  const paintScene = (ctx, { clean = false, transparent = false } = {}) => {
     const rt = runtimeRef.current;
     const st = stateRef.current;
     const boundsOut = clean ? null : [];
 
-    ctx.clearRect(0, 0, W, H);
-    drawSceneBackground(ctx);
+    if (!transparent) drawSceneBackground(ctx);
     const area = drawMaterialBase(ctx, st.material, st.baseColor);
     if (!clean) {
       rt.area = area;
@@ -885,10 +1016,25 @@ export function ConstructorPage() {
   const paint = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const rt = runtimeRef.current;
     const ctx = canvas.getContext("2d");
-    const dpr = runtimeRef.current.dpr || 1;
+    const dpr = rt.dpr || 1;
+    const view = rt.view;
+
+    /* Слой 1 — фон рабочего стола во весь холст */
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "#cfc7b8";
+    ctx.fillRect(0, 0, W, H);
+
+    /* Слой 2 — сцена в мировых координатах под текущим видом */
+    ctx.save();
+    ctx.setTransform(dpr * view.zoom, 0, 0, dpr * view.zoom, dpr * view.x, dpr * view.y);
+    ctx.beginPath();
+    ctx.rect(0, 0, W, H);
+    ctx.clip();
     paintScene(ctx);
+    ctx.restore();
   };
 
   paintRef.current = paint;
@@ -920,6 +1066,26 @@ export function ConstructorPage() {
   useEffect(() => {
     requestPaint();
   }, [material, baseColor, layers, selectedLayerId, requestPaint]);
+
+  /* Ctrl/⌘ + колесо — зум. Обычное колесо оставляем прокрутке страницы.
+     Слушатель нативный: React вешает wheel пассивно, и preventDefault в нём не работает. */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+
+    const onWheel = (event) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      actionsRef.current.zoomAt(event.deltaY < 0 ? 1.12 : 1 / 1.12, {
+        x: ((event.clientX - rect.left) * W) / rect.width,
+        y: ((event.clientY - rect.top) * H) / rect.height,
+      });
+    };
+
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    return () => canvas.removeEventListener("wheel", onWheel);
+  }, []);
 
   /* Подгрузка изображений логотипов (кэш по src) */
   useEffect(() => {
@@ -1055,6 +1221,66 @@ export function ConstructorPage() {
     showNotice("Холст сброшен");
   };
 
+  const addShapeLayer = (shape) => {
+    beginChange(true);
+    const preset =
+      shape === "line"
+        ? { w: 62, h: 1.6, radius: 0 }
+        : shape === "ellipse"
+          ? { w: 34, h: 34, radius: 0 }
+          : { w: 70, h: 18, radius: 12 };
+    const layer = normalizeLayer({
+      type: "shape",
+      shape,
+      name: SHAPES.find((item) => item.id === shape)?.label || "Фигура",
+      x: 50,
+      y: 62,
+      opacity: 100,
+      color: "#14593f",
+      ...preset,
+    });
+    setLayers((prev) => [...prev, layer]);
+    setSelectedLayerId(layer.id);
+  };
+
+  /* Выравнивание считаем по реальным габаритам слоя на холсте */
+  const alignSelected = (axis, mode) => {
+    const rt = runtimeRef.current;
+    const st = stateRef.current;
+    const area = rt.area;
+    const layer = st.layers.find((item) => item.id === st.selectedLayerId);
+    if (!area || !layer || layer.locked) return;
+
+    const bound = rt.bounds.find((item) => item.id === layer.id);
+    if (!bound) return;
+
+    beginChange(true);
+    if (axis === "x") {
+      const half = (bound.width / 2 / area.w) * 100;
+      const value = mode === "start" ? half : mode === "end" ? 100 - half : 50;
+      updateLayer(layer.id, { x: clamp(value, 0, 100) }, { history: false });
+    } else {
+      const half = (bound.height / 2 / area.h) * 100;
+      const value = mode === "start" ? half : mode === "end" ? 100 - half : 50;
+      updateLayer(layer.id, { y: clamp(value, 0, 100) }, { history: false });
+    }
+  };
+
+  /* Перетаскивание слоёв в списке меняет порядок отрисовки */
+  const reorderLayer = (draggedId, targetId) => {
+    if (!draggedId || draggedId === targetId) return;
+    beginChange(true);
+    setLayers((prev) => {
+      const from = prev.findIndex((item) => item.id === draggedId);
+      const to = prev.findIndex((item) => item.id === targetId);
+      if (from < 0 || to < 0) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  };
+
   const nudgeSelected = (dx, dy) => {
     const st = stateRef.current;
     if (!st.selectedLayerId) return;
@@ -1076,7 +1302,8 @@ export function ConstructorPage() {
 
   /* ── Указатель: перенос, масштаб и поворот прямо на канвасе ── */
 
-  const pointFromEvent = (event) => {
+  /* Координаты внутри элемента канваса (без учёта зума) */
+  const canvasPointFromEvent = (event) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
     return {
@@ -1084,6 +1311,60 @@ export function ConstructorPage() {
       y: ((event.clientY - rect.top) * H) / rect.height,
     };
   };
+
+  /* Мировые координаты сцены с поправкой на зум и панораму */
+  const pointFromEvent = (event) => {
+    const view = runtimeRef.current.view;
+    const point = canvasPointFromEvent(event);
+    return {
+      x: (point.x - view.x) / view.zoom,
+      y: (point.y - view.y) / view.zoom,
+    };
+  };
+
+  /* ── Зум и панорама ── */
+
+  const syncZoomLabel = () => setZoomPct(Math.round(runtimeRef.current.view.zoom * 100));
+
+  const clampPan = () => {
+    const view = runtimeRef.current.view;
+    const scaledW = W * view.zoom;
+    const scaledH = H * view.zoom;
+    /* Сцена меньше окна просмотра — центрируем её.
+       Больше — не даём утащить за края. */
+    view.x = scaledW <= W ? (W - scaledW) / 2 : clamp(view.x, W - scaledW, 0);
+    view.y = scaledH <= H ? (H - scaledH) / 2 : clamp(view.y, H - scaledH, 0);
+  };
+
+  const zoomAt = (factor, anchor) => {
+    const view = runtimeRef.current.view;
+    const next = clamp(view.zoom * factor, MIN_ZOOM, MAX_ZOOM);
+    if (next === view.zoom) return;
+    const pivot = anchor || { x: W / 2, y: H / 2 };
+    /* Точка под курсором остаётся на месте */
+    const worldX = (pivot.x - view.x) / view.zoom;
+    const worldY = (pivot.y - view.y) / view.zoom;
+    view.zoom = next;
+    view.x = pivot.x - worldX * next;
+    view.y = pivot.y - worldY * next;
+    clampPan();
+    syncZoomLabel();
+    requestPaint();
+  };
+
+  const resetView = () => {
+    const view = runtimeRef.current.view;
+    view.zoom = 1;
+    view.x = 0;
+    view.y = 0;
+    syncZoomLabel();
+    requestPaint();
+  };
+
+
+  /* Функции вида объявлены ниже присваивания actionsRef — дописываем их сюда */
+  actionsRef.current.zoomAt = zoomAt;
+  actionsRef.current.resetView = resetView;
 
   const pointToAreaPercent = (point, area) => {
     const cx = area.x + area.w / 2;
@@ -1101,8 +1382,9 @@ export function ConstructorPage() {
       const item = bounds[i];
       if (item.locked) continue;
       const local = rotatePoint(point.x, point.y, item.x, item.y, -item.rotation);
-      const padX = item.width / 2 + 8;
-      const padY = item.height / 2 + 8;
+      const slack = 8 / (runtimeRef.current.view.zoom || 1);
+      const padX = item.width / 2 + slack;
+      const padY = item.height / 2 + slack;
       if (Math.abs(local.x - item.x) <= padX && Math.abs(local.y - item.y) <= padY) {
         return item;
       }
@@ -1111,11 +1393,13 @@ export function ConstructorPage() {
   };
 
   const findHandleAt = (point) => {
-    const handles = runtimeRef.current.handles;
+    const rt = runtimeRef.current;
+    const handles = rt.handles;
     if (!handles) return null;
-    if (distance(point, handles.rotate) <= HANDLE_HIT) return { mode: "rotate", handles };
+    const hit = HANDLE_HIT / (rt.view.zoom || 1);
+    if (distance(point, handles.rotate) <= hit) return { mode: "rotate", handles };
     for (const corner of handles.corners) {
-      if (distance(point, corner) <= HANDLE_HIT) return { mode: "resize", handles };
+      if (distance(point, corner) <= hit) return { mode: "resize", handles };
     }
     return null;
   };
@@ -1123,6 +1407,17 @@ export function ConstructorPage() {
   const onPointerDown = (event) => {
     const rt = runtimeRef.current;
     const st = stateRef.current;
+
+    /* Средняя кнопка или пробел — тащим сцену, а не слой */
+    if (event.button === 1 || rt.spaceHeld) {
+      event.preventDefault();
+      const start = canvasPointFromEvent(event);
+      rt.pan = { startX: start.x, startY: start.y, viewX: rt.view.x, viewY: rt.view.y };
+      canvasRef.current.setPointerCapture(event.pointerId);
+      canvasRef.current.style.cursor = "grabbing";
+      return;
+    }
+
     const point = pointFromEvent(event);
 
     const handleHit = findHandleAt(point);
@@ -1138,6 +1433,8 @@ export function ConstructorPage() {
           startDist: Math.max(distance(point, center), 4),
           startFontSize: Number(layer.fontSize || 48),
           startSize: Number(layer.size || 40),
+          startW: Number(layer.w || 60),
+          startH: Number(layer.h || 14),
           startPointerAngle: Math.atan2(point.y - center.y, point.x - center.x),
           startRotation: Number(layer.rotation || 0),
         };
@@ -1180,6 +1477,16 @@ export function ConstructorPage() {
 
   const onPointerMove = (event) => {
     const rt = runtimeRef.current;
+
+    if (rt.pan) {
+      const now = canvasPointFromEvent(event);
+      rt.view.x = rt.pan.viewX + (now.x - rt.pan.startX);
+      rt.view.y = rt.pan.viewY + (now.y - rt.pan.startY);
+      clampPan();
+      requestPaint();
+      return;
+    }
+
     const point = pointFromEvent(event);
 
     if (!rt.drag) {
@@ -1205,10 +1512,19 @@ export function ConstructorPage() {
       rt.live = { id: layer.id, patch: { x, y } };
     } else if (rt.drag.mode === "resize") {
       const scale = distance(point, rt.drag.center) / rt.drag.startDist;
-      rt.live =
-        layer.type === "logo"
-          ? { id: layer.id, patch: { size: clamp(rt.drag.startSize * scale, 8, 150) } }
-          : { id: layer.id, patch: { fontSize: clamp(rt.drag.startFontSize * scale, 12, 220) } };
+      if (layer.type === "logo") {
+        rt.live = { id: layer.id, patch: { size: clamp(rt.drag.startSize * scale, 8, 150) } };
+      } else if (layer.type === "shape") {
+        rt.live = {
+          id: layer.id,
+          patch: {
+            w: clamp(rt.drag.startW * scale, 2, 200),
+            h: clamp(rt.drag.startH * scale, 0.4, 200),
+          },
+        };
+      } else {
+        rt.live = { id: layer.id, patch: { fontSize: clamp(rt.drag.startFontSize * scale, 12, 220) } };
+      }
     } else if (rt.drag.mode === "rotate") {
       const angleNow = Math.atan2(point.y - rt.drag.center.y, point.x - rt.drag.center.x);
       const deltaDeg = ((angleNow - rt.drag.startPointerAngle) * 180) / Math.PI;
@@ -1221,6 +1537,16 @@ export function ConstructorPage() {
 
   const finishDrag = (event) => {
     const rt = runtimeRef.current;
+
+    if (rt.pan) {
+      rt.pan = null;
+      if (canvasRef.current) canvasRef.current.style.cursor = rt.spaceHeld ? "grab" : "default";
+      if (event && canvasRef.current?.hasPointerCapture?.(event.pointerId)) {
+        canvasRef.current.releasePointerCapture(event.pointerId);
+      }
+      return;
+    }
+
     if (rt.drag && rt.live) {
       /* шаг истории появляется только если жест действительно изменил слой */
       pushSnapshot(rt.drag.snapshot);
@@ -1286,6 +1612,12 @@ export function ConstructorPage() {
         setSelectedLayerId(null);
         return;
       }
+      if ((event.ctrlKey || event.metaKey) && (key === "=" || key === "+" || key === "-" || key === "0")) {
+        event.preventDefault();
+        if (key === "0") actionsRef.current.resetView();
+        else actionsRef.current.zoomAt(key === "-" ? 1 / 1.2 : 1.2, null);
+        return;
+      }
       if (!stateRef.current.selectedLayerId) return;
 
       if (event.key === "Delete" || event.key === "Backspace") {
@@ -1310,26 +1642,119 @@ export function ConstructorPage() {
       }
     };
 
+    /* Пробел — временный режим «рука», как в графических редакторах */
+    const onSpaceDown = (event) => {
+      if (event.code !== "Space" || isTyping() || runtimeRef.current.spaceHeld) return;
+      runtimeRef.current.spaceHeld = true;
+      if (canvasRef.current) canvasRef.current.style.cursor = "grab";
+    };
+
+    const onSpaceUp = (event) => {
+      if (event.code !== "Space") return;
+      runtimeRef.current.spaceHeld = false;
+      if (canvasRef.current && !runtimeRef.current.pan) canvasRef.current.style.cursor = "default";
+    };
+
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", onSpaceDown);
+    window.addEventListener("keyup", onSpaceUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keydown", onSpaceDown);
+      window.removeEventListener("keyup", onSpaceUp);
+    };
   }, []);
 
   /* ── Экспорт ── */
 
+  const stamp = () => new Date().toISOString().slice(0, 19).replace(/[T:]/g, "-");
+
   const downloadPng = () => {
-    const scale = 2;
+    const scale = clamp(Number(exportScale) || 2, 1, 4);
+    const transparent = Boolean(exportTransparent);
     const off = document.createElement("canvas");
     off.width = W * scale;
     off.height = H * scale;
     const ctx = off.getContext("2d");
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
-    paintScene(ctx, { clean: true });
+    paintScene(ctx, { clean: true, transparent });
 
     const link = document.createElement("a");
     link.href = off.toDataURL("image/png");
-    link.download = `mockup-${new Date().toISOString().slice(0, 19).replace(/[T:]/g, "-")}.png`;
+    link.download = `mockup-${stamp()}@${scale}x.png`;
     link.click();
-    showNotice("PNG сохранён в загрузки");
+    showNotice(`PNG ${W * scale}×${H * scale} сохранён`);
+  };
+
+  /* ── Проекты ── */
+
+  const saveProject = () => {
+    const name = window.prompt("Название проекта", `Макет ${projects.length + 1}`);
+    if (!name) return;
+    const entry = {
+      id: uid("prj"),
+      name: name.trim().slice(0, 60),
+      savedAt: new Date().toISOString(),
+      design: { material, baseColor, layers },
+    };
+    const next = [entry, ...projects].slice(0, 12);
+    if (!persistProjects(next)) {
+      showNotice("Не хватило места — удалите старые проекты");
+      return;
+    }
+    setProjects(next);
+    showNotice("Проект сохранён");
+  };
+
+  const applyDesign = (design) => {
+    if (!design || !Array.isArray(design.layers)) {
+      showNotice("Файл не похож на макет");
+      return;
+    }
+    beginChange(true);
+    setMaterial(MATERIALS.some((m) => m.id === design.material) ? design.material : "bag");
+    setBaseColor(typeof design.baseColor === "string" ? design.baseColor : "#b7e8cb");
+    const restored = design.layers
+      .map(normalizeLayer)
+      .filter((layer) => layer.type !== "logo" || layer.imageSrc);
+    setLayers(restored.length ? restored : [buildDefaultLayer(settings.companyName)]);
+    setSelectedLayerId(restored[0]?.id || null);
+  };
+
+  const openProject = (entry) => {
+    applyDesign(entry.design);
+    showNotice(`Открыт «${entry.name}»`);
+  };
+
+  const removeProject = (id) => {
+    const next = projects.filter((item) => item.id !== id);
+    persistProjects(next);
+    setProjects(next);
+  };
+
+  const exportJson = () => {
+    const blob = new Blob([JSON.stringify({ material, baseColor, layers }, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `kraft-design-${stamp()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showNotice("Файл макета выгружен");
+  };
+
+  const importJson = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      applyDesign(JSON.parse(await file.text()));
+      showNotice("Макет загружен из файла");
+    } catch (_error) {
+      showNotice("Не удалось прочитать файл макета");
+    }
   };
 
   const onLogoUpload = async (event) => {
@@ -1339,6 +1764,47 @@ export function ConstructorPage() {
     try {
       const dataUrl = await prepareLogoFile(file);
       addLogoLayer(dataUrl, file.name);
+    } catch (_error) {
+      showNotice("Не удалось прочитать файл логотипа");
+    }
+  };
+
+  const onCanvasDragOver = (event) => {
+    if (!event.dataTransfer?.types?.includes("Files")) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setIsDropping(true);
+  };
+
+  const onCanvasDragLeave = (event) => {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    setIsDropping(false);
+  };
+
+  const onCanvasDrop = async (event) => {
+    event.preventDefault();
+    setIsDropping(false);
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) return;
+
+    if (file.type === "application/json" || file.name.endsWith(".json")) {
+      try {
+        applyDesign(JSON.parse(await file.text()));
+        showNotice("Макет загружен из файла");
+      } catch (_error) {
+        showNotice("Не удалось прочитать файл макета");
+      }
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      showNotice("Перетащите картинку или .json макета");
+      return;
+    }
+
+    try {
+      addLogoLayer(await prepareLogoFile(file), file.name);
+      showNotice("Логотип добавлен");
     } catch (_error) {
       showNotice("Не удалось прочитать файл логотипа");
     }
@@ -1366,7 +1832,29 @@ export function ConstructorPage() {
       />
 
       <section className="container section">
-        <div className="kit-layout">
+        {/* На узких экранах боковые панели переключаются вкладками */}
+        <div className="kit-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={panelTab === "setup"}
+            className={panelTab === "setup" ? "is-active" : ""}
+            onClick={() => setPanelTab("setup")}
+          >
+            Настройка
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={panelTab === "layers"}
+            className={panelTab === "layers" ? "is-active" : ""}
+            onClick={() => setPanelTab("layers")}
+          >
+            Слои и свойства
+          </button>
+        </div>
+
+        <div className="kit-layout" data-tab={panelTab}>
           {/* ── Левая панель ── */}
           <aside className="kit-panel reveal-item">
             <h3><span className="kit-step">1</span> Продукт</h3>
@@ -1451,6 +1939,24 @@ export function ConstructorPage() {
                 + Блок контактов
               </button>
             </div>
+
+            <div className="kit-divider" />
+
+            <h3><span className="kit-step">5</span> Фигуры</h3>
+            <div className="material-switcher" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+              {SHAPES.map((shape) => (
+                <button
+                  key={shape.id}
+                  type="button"
+                  className="material-btn"
+                  onClick={() => addShapeLayer(shape.id)}
+                >
+                  <span className={`shape-preview shape-preview--${shape.id}`} />
+                  {shape.label}
+                </button>
+              ))}
+            </div>
+            <p className="kit-help">Плашки и линии помогают выделить логотип на крафте.</p>
           </aside>
 
           {/* ── Канвас ── */}
@@ -1476,16 +1982,51 @@ export function ConstructorPage() {
                   ↷
                 </button>
               </div>
+              <div className="kit-toolbar-group kit-zoom">
+                <button
+                  className="icon-btn"
+                  type="button"
+                  title="Отдалить (Ctrl −)"
+                  onClick={() => zoomAt(1 / 1.2, null)}
+                  disabled={zoomPct <= MIN_ZOOM * 100 + 1}
+                >
+                  −
+                </button>
+                <button
+                  className="kit-zoom-value"
+                  type="button"
+                  title="Сбросить масштаб (Ctrl 0)"
+                  onClick={resetView}
+                >
+                  {zoomPct}%
+                </button>
+                <button
+                  className="icon-btn"
+                  type="button"
+                  title="Приблизить (Ctrl +)"
+                  onClick={() => zoomAt(1.2, null)}
+                  disabled={zoomPct >= MAX_ZOOM * 100 - 1}
+                >
+                  +
+                </button>
+              </div>
+
               <div className="kit-toolbar-group">
                 <button className="btn btn-inline btn-secondary" type="button" onClick={resetLayers}>
                   Сбросить
                 </button>
                 <button className="btn btn-inline" type="button" onClick={downloadPng}>
-                  ↓ Скачать PNG
+                  ↓ PNG {exportScale}×
                 </button>
               </div>
             </div>
 
+            <div
+              className={`kit-canvas-drop ${isDropping ? "is-active" : ""}`}
+              onDragOver={onCanvasDragOver}
+              onDragLeave={onCanvasDragLeave}
+              onDrop={onCanvasDrop}
+            >
             <canvas
               id="designCanvas"
               ref={canvasRef}
@@ -1498,10 +2039,86 @@ export function ConstructorPage() {
               }}
               onDoubleClick={onDoubleClick}
             />
+              {isDropping ? <div className="kit-drop-hint">Отпустите — добавим на макет</div> : null}
+            </div>
+
+            <div className="kit-exports">
+              <div className="kit-export-group">
+                <span className="kit-export-label">Экспорт</span>
+                <div className="segmented">
+                  {[1, 2, 3].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`segmented-btn ${exportScale === value ? "is-active" : ""}`}
+                      onClick={() => setExportScale(value)}
+                      title={`${W * value}×${H * value} px`}
+                    >
+                      {value}×
+                    </button>
+                  ))}
+                </div>
+                <label className="check-row">
+                  <input
+                    type="checkbox"
+                    checked={exportTransparent}
+                    onChange={(e) => setExportTransparent(e.target.checked)}
+                  />
+                  <span>Без фона</span>
+                </label>
+              </div>
+
+              <div className="kit-export-group">
+                <button className="btn btn-inline btn-secondary" type="button" onClick={saveProject}>
+                  Сохранить проект
+                </button>
+                <button className="btn btn-inline btn-secondary" type="button" onClick={exportJson}>
+                  ↓ JSON
+                </button>
+                <button
+                  className="btn btn-inline btn-secondary"
+                  type="button"
+                  onClick={() => fileImportRef.current?.click()}
+                >
+                  ↑ Загрузить
+                </button>
+                <input
+                  ref={fileImportRef}
+                  type="file"
+                  accept="application/json"
+                  hidden
+                  onChange={importJson}
+                />
+              </div>
+            </div>
+
+            {projects.length ? (
+              <div className="kit-projects">
+                {projects.map((entry) => (
+                  <span className="kit-project" key={entry.id}>
+                    <button type="button" onClick={() => openProject(entry)} title={`Открыть «${entry.name}»`}>
+                      {entry.name}
+                    </button>
+                    <button
+                      type="button"
+                      className="kit-project-x"
+                      onClick={() => removeProject(entry.id)}
+                      title="Удалить проект"
+                      aria-label={`Удалить проект ${entry.name}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            ) : null}
 
             <p className="kit-help">
               Тяните слой мышкой, угловые ручки — размер, верхняя — поворот. Двойной клик по тексту — правка.
-              Стрелки — точная подстройка, Del — удалить, Ctrl+D — дубликат, Ctrl+Z — отмена.
+              Файл можно бросить прямо на холст.
+              <br />
+              <b>Ctrl + колесо</b> — масштаб, <b>пробел + тяга</b> или средняя кнопка — перемещение холста,
+              стрелки — точная подстройка, Del — удалить, Ctrl+D — дубликат, Ctrl+Z — отмена.
             </p>
 
             {notice ? <div className="kit-notice">{notice}</div> : null}
@@ -1515,10 +2132,21 @@ export function ConstructorPage() {
                 [...layers].reverse().map((layer) => (
                   <li
                     key={layer.id}
-                    className={`layer-item ${layer.id === selectedLayerId ? "is-selected" : ""} ${layer.hidden ? "is-hidden" : ""}`}
+                    className={`layer-item ${layer.id === selectedLayerId ? "is-selected" : ""} ${layer.hidden ? "is-hidden" : ""} ${dragLayerId === layer.id ? "is-dragging" : ""}`}
                     onClick={() => setSelectedLayerId(layer.id)}
+                    draggable
+                    onDragStart={() => setDragLayerId(layer.id)}
+                    onDragEnd={() => setDragLayerId(null)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      reorderLayer(dragLayerId, layer.id);
+                      setDragLayerId(null);
+                    }}
                   >
-                    <span className="layer-icon">{layer.type === "logo" ? "🖼️" : "T"}</span>
+                    <span className="layer-icon">
+                      {layer.type === "logo" ? "🖼️" : layer.type === "shape" ? "◧" : "T"}
+                    </span>
                     <span className="layer-name">{layer.name || "Слой"}</span>
                     <button
                       type="button"
@@ -1560,6 +2188,30 @@ export function ConstructorPage() {
               {selectedLayer ? (
                 <div className="layer-props">
                   <div className="field-wide">
+                    <label>Выравнивание в поле печати</label>
+                    <div className="align-grid">
+                      {[
+                        { axis: "x", mode: "start", label: "⇤", title: "По левому краю" },
+                        { axis: "x", mode: "center", label: "⇹", title: "По центру по горизонтали" },
+                        { axis: "x", mode: "end", label: "⇥", title: "По правому краю" },
+                        { axis: "y", mode: "start", label: "⤒", title: "По верхнему краю" },
+                        { axis: "y", mode: "center", label: "⇳", title: "По центру по вертикали" },
+                        { axis: "y", mode: "end", label: "⤓", title: "По нижнему краю" },
+                      ].map((item) => (
+                        <button
+                          key={`${item.axis}${item.mode}`}
+                          type="button"
+                          className="icon-btn"
+                          title={item.title}
+                          onClick={() => alignSelected(item.axis, item.mode)}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="field-wide">
                     <label>Название слоя</label>
                     <input
                       value={selectedLayer.name || ""}
@@ -1594,11 +2246,96 @@ export function ConstructorPage() {
                   </div>
 
                   {selectedLayer.type === "logo" && (
-                    <div className="field-wide">
-                      <label>Размер логотипа <strong>{Math.round(selectedLayer.size)}%</strong></label>
-                      <input type="range" min={8} max={150} value={selectedLayer.size}
-                        onChange={(e) => updateLayer(selectedLayer.id, { size: Number(e.target.value) })} />
-                    </div>
+                    <>
+                      <div className="field-wide">
+                        <label>Размер логотипа <strong>{Math.round(selectedLayer.size)}%</strong></label>
+                        <input type="range" min={8} max={150} value={selectedLayer.size}
+                          onChange={(e) => updateLayer(selectedLayer.id, { size: Number(e.target.value) })} />
+                      </div>
+
+                      <div className="kit-actions">
+                        <button
+                          type="button"
+                          className={`btn btn-inline ${selectedLayer.flipX ? "" : "btn-secondary"}`}
+                          onClick={() => updateLayer(selectedLayer.id, { flipX: !selectedLayer.flipX }, { force: true })}
+                        >
+                          ⇋ По горизонтали
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn btn-inline ${selectedLayer.flipY ? "" : "btn-secondary"}`}
+                          onClick={() => updateLayer(selectedLayer.id, { flipY: !selectedLayer.flipY }, { force: true })}
+                        >
+                          ⇅ По вертикали
+                        </button>
+                      </div>
+
+                      <label className="check-row">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(selectedLayer.mono)}
+                          onChange={(e) => updateLayer(selectedLayer.id, { mono: e.target.checked }, { force: true })}
+                        />
+                        <span>Одноцветная печать</span>
+                      </label>
+
+                      {selectedLayer.mono ? (
+                        <ColorPicker
+                          label="Цвет краски"
+                          value={selectedLayer.monoColor || "#14593f"}
+                          onChange={(monoColor) => updateLayer(selectedLayer.id, { monoColor })}
+                          presets={TEXT_COLORS}
+                        />
+                      ) : null}
+                    </>
+                  )}
+
+                  {selectedLayer.type === "shape" && (
+                    <>
+                      <div className="field-wide">
+                        <label>Форма</label>
+                        <div className="segmented">
+                          {SHAPES.map((shape) => (
+                            <button
+                              key={shape.id}
+                              type="button"
+                              className={`segmented-btn ${selectedLayer.shape === shape.id ? "is-active" : ""}`}
+                              onClick={() => updateLayer(selectedLayer.id, { shape: shape.id }, { force: true })}
+                            >
+                              {shape.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="prop-row">
+                        <div className="field">
+                          <label>Ширина <strong>{Math.round(selectedLayer.w)}%</strong></label>
+                          <input type="range" min={2} max={200} value={selectedLayer.w}
+                            onChange={(e) => updateLayer(selectedLayer.id, { w: Number(e.target.value) })} />
+                        </div>
+                        <div className="field">
+                          <label>Высота <strong>{Number(selectedLayer.h).toFixed(1)}%</strong></label>
+                          <input type="range" min={0.4} max={120} step={0.2} value={selectedLayer.h}
+                            onChange={(e) => updateLayer(selectedLayer.id, { h: Number(e.target.value) })} />
+                        </div>
+                      </div>
+
+                      {selectedLayer.shape === "rect" ? (
+                        <div className="field-wide">
+                          <label>Скругление <strong>{Math.round(selectedLayer.radius)} px</strong></label>
+                          <input type="range" min={0} max={120} value={selectedLayer.radius}
+                            onChange={(e) => updateLayer(selectedLayer.id, { radius: Number(e.target.value) })} />
+                        </div>
+                      ) : null}
+
+                      <ColorPicker
+                        label="Цвет фигуры"
+                        value={selectedLayer.color || "#14593f"}
+                        onChange={(color) => updateLayer(selectedLayer.id, { color })}
+                        presets={TEXT_COLORS}
+                      />
+                    </>
                   )}
 
                   {selectedLayer.type === "text" && (
@@ -1639,12 +2376,34 @@ export function ConstructorPage() {
                         </div>
                       </div>
 
+                      <div className="prop-row">
+                        <div className="field">
+                          <label>Интерлиньяж <strong>{Number(selectedLayer.lineHeight || 1.22).toFixed(2)}</strong></label>
+                          <input type="range" min={0.8} max={2.4} step={0.02} value={selectedLayer.lineHeight || 1.22}
+                            onChange={(e) => updateLayer(selectedLayer.id, { lineHeight: Number(e.target.value) })} />
+                        </div>
+                        <div className="field">
+                          <label>Обводка <strong>{Math.round(selectedLayer.strokeWidth || 0)} px</strong></label>
+                          <input type="range" min={0} max={12} value={selectedLayer.strokeWidth || 0}
+                            onChange={(e) => updateLayer(selectedLayer.id, { strokeWidth: Number(e.target.value) })} />
+                        </div>
+                      </div>
+
                       <ColorPicker
                         label="Цвет текста"
                         value={selectedLayer.color || "#0f172a"}
                         onChange={(color) => updateLayer(selectedLayer.id, { color })}
                         presets={TEXT_COLORS}
                       />
+
+                      {Number(selectedLayer.strokeWidth || 0) > 0 ? (
+                        <ColorPicker
+                          label="Цвет обводки"
+                          value={selectedLayer.strokeColor || "#ffffff"}
+                          onChange={(strokeColor) => updateLayer(selectedLayer.id, { strokeColor })}
+                          presets={TEXT_COLORS}
+                        />
+                      ) : null}
 
                       <div className="prop-row" style={{ marginTop: "0.75rem" }}>
                         <div className="field">

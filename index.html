@@ -4,7 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>I-Kraft-Pack — производство крафтовых пакетов</title>
+    <meta name="theme-color" content="#08090a" />
     <link rel="icon" type="image/svg+xml" href="/assets/kraft.svg" />
+    <script>
+      /* Тема выставляется до первой отрисовки — иначе при светлой теме
+         мелькнёт тёмный экран, пока не смонтируется React. */
+      (function () {
+        var mode = "system";
+        try {
+          mode = localStorage.getItem("kraftvision.theme") || "system";
+        } catch (e) {}
+        var light =
+          mode === "light" ||
+          (mode === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+        document.documentElement.style.background = light ? "#f6f2ea" : "#0b0c0d";
+      })();
+    </script>
     <script>
       // GitHub Pages SPA: restore path from redirect
       (function () {

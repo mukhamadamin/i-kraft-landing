@@ -2,6 +2,7 @@
 import { useStore } from "../store/StoreContext";
 import { WorkCard, EmptyState } from "../components/Cards";
 import { PageHead } from "../components/PageHead";
+import { Stagger } from "../components/motion";
 
 export function WorksPage() {
   const [params] = useSearchParams();
@@ -38,9 +39,9 @@ export function WorksPage() {
       </PageHead>
 
       <section className="container section">
-        <div className="grid-cards">
+        <Stagger className="grid-cards" step={90}>
           {filtered.length ? filtered.map((item) => <WorkCard key={item.id} item={item} clientName={clientMap[item.clientId]?.name} categoryName={categoryMap[item.categoryId]?.title} />) : <EmptyState text="По выбранному фильтру кейсов нет." />}
-        </div>
+        </Stagger>
       </section>
     </>
   );

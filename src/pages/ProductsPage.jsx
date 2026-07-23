@@ -1,6 +1,7 @@
 ﻿import { useStore } from "../store/StoreContext";
 import { ProductCard, EmptyState } from "../components/Cards";
 import { PageHead } from "../components/PageHead";
+import { Stagger } from "../components/motion";
 
 export function ProductsPage() {
   const {
@@ -17,7 +18,7 @@ export function ProductsPage() {
         subtitle={`Все товарные позиции с быстрым переходом в карточку. Всего: ${products.length}`}
       />
       <section className="container section">
-        <div className="grid-cards">
+        <Stagger className="grid-cards" step={90}>
           {products.length ? (
             [...products]
               .sort((a, b) => a.title.localeCompare(b.title, "ru"))
@@ -25,7 +26,7 @@ export function ProductsPage() {
           ) : (
             <EmptyState text="Продукция пока не добавлена." />
           )}
-        </div>
+        </Stagger>
       </section>
     </>
   );

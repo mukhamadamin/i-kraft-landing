@@ -1,6 +1,7 @@
 ﻿import { useStore } from "../store/StoreContext";
 import { ClientCard, EmptyState } from "../components/Cards";
 import { PageHead } from "../components/PageHead";
+import { Stagger } from "../components/motion";
 
 export function ClientsPage() {
   const {
@@ -16,9 +17,9 @@ export function ClientsPage() {
     <>
       <PageHead eyebrow="Портфель" title="Наши клиенты" subtitle="С кем мы работаем: сетевые проекты и локальные бренды." />
       <section className="container section">
-        <div className="grid-cards">
+        <Stagger className="grid-cards" step={90}>
           {clients.length ? clients.map((item) => <ClientCard key={item.id} item={item} worksCount={worksCount[item.id] || 0} />) : <EmptyState text="Клиентов пока нет." />}
-        </div>
+        </Stagger>
       </section>
     </>
   );

@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "../store/StoreContext";
+import { kraftLogo } from "../assets";
+import { ThemeToggle } from "../theme";
+import { Atmosphere } from "../components/motion";
 import { formatDate, shortText } from "../utils/format";
 
 function fieldClass(type) {
@@ -44,8 +47,9 @@ function AdminLogin({ onSuccess }) {
 
   return (
     <div className="admin-login-screen">
+      <Atmosphere />
       <form className={`admin-login-card ${error ? "is-error" : ""}`} onSubmit={submit}>
-        <img src="/assets/kraft.svg" alt="" className="admin-login-logo" />
+        <img src={kraftLogo} alt="" className="admin-login-logo" />
         <h1>Панель управления</h1>
         <p>Введите логин и пароль администратора</p>
 
@@ -416,16 +420,18 @@ function AdminPanel({ onLogout }) {
 
   return (
     <div className="admin-shell">
+      <Atmosphere />
       <header className="admin-header">
         <div className="admin-header-inner">
           <div className="admin-brand">
-            <img src="/assets/kraft.svg" alt="" className="admin-brand-logo" />
+            <img src={kraftLogo} alt="" className="admin-brand-logo" />
             <div>
               <b>{state.settings.companyName || "I-Kraft-Pack"}</b>
               <span>Панель управления</span>
             </div>
           </div>
           <div className="admin-header-actions">
+            <ThemeToggle />
             <Link to="/" className="btn btn-inline admin-ghost-btn">
               ← Открыть сайт
             </Link>

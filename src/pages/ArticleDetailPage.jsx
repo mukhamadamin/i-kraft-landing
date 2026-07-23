@@ -3,6 +3,7 @@ import { useStore } from "../store/StoreContext";
 import { formatDate, paragraphize } from "../utils/format";
 import { PageHead } from "../components/PageHead";
 import { EmptyState } from "../components/Cards";
+import { Reveal } from "../components/motion";
 
 export function ArticleDetailPage() {
   const { type, id } = useParams();
@@ -31,7 +32,7 @@ export function ArticleDetailPage() {
       />
 
       <section className="container">
-        <div className="article reveal-item">
+        <Reveal className="article" variant="blur">
           <div className="article-cover">
             {item.image ? <img src={item.image} alt={item.title} /> : <div className="image-fallback">{item.title}</div>}
           </div>
@@ -46,9 +47,9 @@ export function ArticleDetailPage() {
               ))}
             </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="section sidebar-card reveal-item">
+        <Reveal className="section sidebar-card" delay={80}>
           <h3>Другие материалы</h3>
           <div className="chip-row">
             {related.length
@@ -59,7 +60,7 @@ export function ArticleDetailPage() {
                 ))
               : "Других материалов пока нет"}
           </div>
-        </div>
+        </Reveal>
       </section>
     </>
   );

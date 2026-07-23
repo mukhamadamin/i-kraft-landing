@@ -1,13 +1,20 @@
 import { Link } from "react-router-dom";
 import { formatDate } from "../utils/format";
+import { Tilt } from "./motion";
 
 export function ProductCard({ item, categoryName }) {
   return (
-    <article className="card reveal-item">
-      <div className="card-media">{item.image ? <img src={item.image} alt={item.title} loading="lazy" /> : <div className="image-fallback">{item.title}</div>}</div>
+    <Tilt as="article" className="card noise-card" max={7}>
+      <div className="card-media">
+        {item.image ? (
+          <img src={item.image} alt={item.title} loading="lazy" />
+        ) : (
+          <div className="image-fallback">{item.title}</div>
+        )}
+      </div>
       <div className="card-body">
-        <h3 className="card-title">{item.title}</h3>
         <p className="card-meta">{categoryName || "Без категории"}</p>
+        <h3 className="card-title">{item.title}</h3>
         <p className="card-text">{item.summary}</p>
         <div className="card-actions">
           <span className="chip">{item.minOrder || "По запросу"}</span>
@@ -16,17 +23,23 @@ export function ProductCard({ item, categoryName }) {
           </Link>
         </div>
       </div>
-    </article>
+    </Tilt>
   );
 }
 
 export function ArticleCard({ item, type }) {
   return (
-    <article className="card reveal-item">
-      <div className="card-media">{item.image ? <img src={item.image} alt={item.title} loading="lazy" /> : <div className="image-fallback">{item.title}</div>}</div>
+    <Tilt as="article" className="card noise-card" max={7}>
+      <div className="card-media">
+        {item.image ? (
+          <img src={item.image} alt={item.title} loading="lazy" />
+        ) : (
+          <div className="image-fallback">{item.title}</div>
+        )}
+      </div>
       <div className="card-body">
-        <h3 className="card-title">{item.title}</h3>
         <p className="card-meta">{formatDate(item.date)}</p>
+        <h3 className="card-title">{item.title}</h3>
         <p className="card-text">{item.excerpt}</p>
         <div className="card-actions">
           <span className="chip">{type === "posts" ? item.readTime || "Пост" : "Новость"}</span>
@@ -35,13 +48,13 @@ export function ArticleCard({ item, type }) {
           </Link>
         </div>
       </div>
-    </article>
+    </Tilt>
   );
 }
 
 export function ClientCard({ item, worksCount }) {
   return (
-    <article className="card reveal-item">
+    <Tilt as="article" className="card noise-card" max={7}>
       <div className="client-card-logo">
         {item.logo ? (
           <img src={item.logo} alt={item.name} className="client-logo-img" />
@@ -50,8 +63,8 @@ export function ClientCard({ item, worksCount }) {
         )}
       </div>
       <div className="card-body">
-        <h3 className="card-title">{item.name}</h3>
         <p className="card-meta">{item.industry}</p>
+        <h3 className="card-title">{item.name}</h3>
         <p className="card-text">{item.about}</p>
         <div className="card-actions">
           <span className="chip">Кейсов: {worksCount}</span>
@@ -60,19 +73,25 @@ export function ClientCard({ item, worksCount }) {
           </a>
         </div>
       </div>
-    </article>
+    </Tilt>
   );
 }
 
 export function WorkCard({ item, clientName, categoryName }) {
   return (
-    <article className="card reveal-item">
-      <div className="card-media">{item.image ? <img src={item.image} alt={item.title} loading="lazy" /> : <div className="image-fallback">{item.title}</div>}</div>
+    <Tilt as="article" className="card noise-card" max={7}>
+      <div className="card-media">
+        {item.image ? (
+          <img src={item.image} alt={item.title} loading="lazy" />
+        ) : (
+          <div className="image-fallback">{item.title}</div>
+        )}
+      </div>
       <div className="card-body">
-        <h3 className="card-title">{item.title}</h3>
         <p className="card-meta">
           {clientName || "Клиент"} • {categoryName || "Без категории"}
         </p>
+        <h3 className="card-title">{item.title}</h3>
         <p className="card-text">{item.result || item.solution}</p>
         <div className="card-actions">
           <span className="chip">{formatDate(item.date)}</span>
@@ -81,7 +100,32 @@ export function WorkCard({ item, clientName, categoryName }) {
           </Link>
         </div>
       </div>
-    </article>
+    </Tilt>
+  );
+}
+
+export function CategoryCard({ item, count }) {
+  return (
+    <Tilt as="article" className="card noise-card" max={7}>
+      <div className="card-media">
+        {item.image ? (
+          <img src={item.image} alt={item.title} loading="lazy" />
+        ) : (
+          <div className="image-fallback">{item.title}</div>
+        )}
+      </div>
+      <div className="card-body">
+        <p className="card-meta">Направление</p>
+        <h3 className="card-title">{item.title}</h3>
+        <p className="card-text">{item.description}</p>
+        <div className="card-actions">
+          <span className="chip">Позиции: {count}</span>
+          <Link className="card-link" to={`/catalog?category=${item.id}`}>
+            Открыть каталог
+          </Link>
+        </div>
+      </div>
+    </Tilt>
   );
 }
 

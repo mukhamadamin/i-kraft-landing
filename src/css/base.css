@@ -1,0 +1,745 @@
+/* ═══════════════════════════════════════════════════════════════
+   KRAFT — дизайн-система
+
+   Палитра построена на бумаге, а не на неоне: тёплый крафтовый тан
+   как акцент действий и приглушённый эвкалипт как эко-сигнал.
+   Все поверхности вынесены в токены, поэтому светлая тема — это
+   переопределение переменных в :root[data-theme="light"], без
+   дублирования правил.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ─ Поверхности ─ */
+  --ink: #0b0c0d;
+  --ink-1: #111315;
+  --ink-2: #16191b;
+  --ink-3: #1d2124;
+  --ink-4: #272c30;
+
+  /* ─ Текст ─ */
+  --paper: #f0ece5;
+  --paper-dim: #b3ada2;
+  --paper-faint: #817b72;
+
+  /* ─ Линии ─ */
+  --line: rgba(240, 236, 229, 0.085);
+  --line-strong: rgba(240, 236, 229, 0.16);
+  --line-bright: rgba(240, 236, 229, 0.28);
+
+  /* ─ Крафт: материал пакета. Не меняется между темами ─ */
+  --kraft: #d9a86c;
+  --kraft-hi: #f0c894;
+  --kraft-deep: #a9743c;
+  --kraft-glow: rgba(217, 168, 108, 0.24);
+
+  /* ─ Акцент действий: тёплый тан ─ */
+  --accent: #dda876;
+  --accent-hi: #f2cea6;
+  --accent-deep: #a97243;
+  --accent-ink: #2a1c0c;
+  --accent-soft: rgba(221, 168, 118, 0.13);
+  --accent-glow: rgba(221, 168, 118, 0.2);
+
+  /* ─ Эко-сигнал: приглушённый эвкалипт ─ */
+  --eco: #7eb296;
+  --eco-hi: #a9d0bd;
+  --eco-deep: #4b7e66;
+  --eco-soft: rgba(126, 178, 150, 0.12);
+  --eco-glow: rgba(126, 178, 150, 0.2);
+
+  --danger: #e8695f;
+  --warning: #d99a3c;
+
+  /* ─ Градиенты ─ */
+  --grad-accent: linear-gradient(135deg, var(--accent-hi) 0%, var(--accent) 48%, var(--accent-deep) 100%);
+  --grad-kraft: linear-gradient(135deg, var(--kraft-hi) 0%, var(--kraft) 48%, var(--kraft-deep) 100%);
+  --grad-mixed: linear-gradient(120deg, var(--eco) 0%, var(--accent) 58%, var(--accent-deep) 100%);
+  --grad-text: linear-gradient(150deg, #ffffff 0%, #f2e9db 40%, var(--accent) 88%, var(--accent-deep) 130%);
+
+  /* ─ Стекло и поверхности карточек ─ */
+  --glass: rgba(255, 255, 255, 0.035);
+  --glass-strong: rgba(255, 255, 255, 0.06);
+  --glass-blur: blur(20px) saturate(150%);
+
+  /* Заливки, которые инвертируются в светлой теме */
+  --surface-grad: linear-gradient(165deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  --surface-solid: rgba(17, 19, 21, 0.74);
+  --surface-raised: rgba(20, 23, 25, 0.82);
+  --field-bg: rgba(0, 0, 0, 0.26);
+  --field-bg-focus: rgba(0, 0, 0, 0.36);
+  --header-bg: rgba(11, 12, 13, 0.72);
+  --menu-bg: rgba(17, 19, 21, 0.97);
+  --tint-soft: rgba(255, 255, 255, 0.03);
+  --scrim: rgba(4, 5, 6, 0.78);
+  --media-scrim: rgba(8, 9, 10, 0.86);
+  --grid-line: rgba(240, 236, 229, 0.028);
+  --wordmark-top: rgba(240, 236, 229, 0.15);
+  --grain-blend: overlay;
+  --grain-opacity: 0.4;
+  --atmo-strength: 1;
+
+  /* Радиусы */
+  --r-3xl: 34px;
+  --r-2xl: 26px;
+  --r-xl: 20px;
+  --r-lg: 15px;
+  --r-md: 11px;
+  --r-sm: 8px;
+  --r-full: 999px;
+
+  /* Тени */
+  --sh-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sh-sm: 0 4px 18px rgba(0, 0, 0, 0.35);
+  --sh-md: 0 14px 40px rgba(0, 0, 0, 0.45);
+  --sh-lg: 0 30px 80px rgba(0, 0, 0, 0.55);
+  --sh-accent: 0 8px 24px rgba(169, 114, 67, 0.28);
+  --sh-accent-lg: 0 16px 44px rgba(169, 114, 67, 0.34);
+  --sh-kraft: 0 12px 34px rgba(169, 114, 67, 0.24);
+
+  /* Тайминги */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --shell: min(1280px, calc(100% - 3rem));
+
+  color-scheme: dark;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   СВЕТЛАЯ ТЕМА — «крафтовая бумага»
+   Не белый лист, а тёплый небелёный тон: тот же материал, что
+   и продукт. Переопределяются только токены.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root[data-theme="light"] {
+  --ink: #f6f2ea;
+  --ink-1: #ffffff;
+  --ink-2: #f0ebe1;
+  --ink-3: #e8e1d4;
+  --ink-4: #d8cfbe;
+
+  --paper: #191610;
+  --paper-dim: #565046;
+  --paper-faint: #837c71;
+
+  --line: rgba(25, 22, 16, 0.1);
+  --line-strong: rgba(25, 22, 16, 0.17);
+  --line-bright: rgba(25, 22, 16, 0.32);
+
+  /* Акцент темнеет, чтобы держать контраст на светлом фоне */
+  --accent: #b5793e;
+  --accent-hi: #d5a06a;
+  --accent-deep: #8a5626;
+  --accent-ink: #fff9f1;
+  --accent-soft: rgba(181, 121, 62, 0.1);
+  --accent-glow: rgba(181, 121, 62, 0.18);
+
+  --eco: #4a8a6e;
+  --eco-hi: #6ba68b;
+  --eco-deep: #2f6650;
+  --eco-soft: rgba(74, 138, 110, 0.1);
+  --eco-glow: rgba(74, 138, 110, 0.18);
+
+  --danger: #c4463b;
+  --warning: #a97417;
+
+  --grad-accent: linear-gradient(135deg, var(--accent-hi) 0%, var(--accent) 52%, var(--accent-deep) 100%);
+  --grad-mixed: linear-gradient(120deg, var(--eco) 0%, var(--accent) 58%, var(--accent-deep) 100%);
+  --grad-text: linear-gradient(150deg, #191610 0%, #3d3527 38%, var(--accent) 92%, var(--accent-deep) 130%);
+
+  --glass: rgba(255, 255, 255, 0.6);
+  --glass-strong: rgba(255, 255, 255, 0.85);
+
+  --surface-grad: linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.62));
+  --surface-solid: rgba(255, 255, 255, 0.88);
+  --surface-raised: rgba(255, 255, 255, 0.96);
+  --field-bg: rgba(255, 255, 255, 0.78);
+  --field-bg-focus: #ffffff;
+  --header-bg: rgba(246, 242, 234, 0.78);
+  --menu-bg: rgba(255, 255, 255, 0.97);
+  --tint-soft: rgba(25, 22, 16, 0.035);
+  --scrim: rgba(32, 27, 20, 0.42);
+  --media-scrim: rgba(24, 20, 14, 0.6);
+  --grid-line: rgba(25, 22, 16, 0.04);
+  --wordmark-top: rgba(25, 22, 16, 0.12);
+
+  /* На светлом зерно работает на умножении и куда деликатнее */
+  --grain-blend: multiply;
+  --grain-opacity: 0.14;
+  --atmo-strength: 0.5;
+
+  --sh-xs: 0 1px 2px rgba(43, 36, 26, 0.08);
+  --sh-sm: 0 4px 16px rgba(43, 36, 26, 0.08);
+  --sh-md: 0 12px 34px rgba(43, 36, 26, 0.1);
+  --sh-lg: 0 26px 64px rgba(43, 36, 26, 0.14);
+  --sh-accent: 0 8px 22px rgba(138, 86, 38, 0.24);
+  --sh-accent-lg: 0 14px 38px rgba(138, 86, 38, 0.28);
+  --sh-kraft: 0 12px 30px rgba(138, 86, 38, 0.2);
+
+  color-scheme: light;
+}
+
+/* Точечные правки для светлой темы: то, что нельзя решить токенами */
+:root[data-theme="light"] {
+  /* Логотип нарисован белым — на светлом фоне ставим его на тёмную плашку */
+  --logo-plate: #16130e;
+}
+
+:root[data-theme="light"] .brand-logo-img,
+:root[data-theme="light"] .admin-brand-logo,
+:root[data-theme="light"] .admin-login-logo {
+  background: var(--logo-plate);
+  border-radius: 10px;
+  padding: 5px 7px;
+  filter: none;
+}
+
+/* Клиентские логотипы: на светлом их гасим прозрачностью, а не яркостью */
+:root[data-theme="light"] .client-logo-img,
+:root[data-theme="light"] .marquee-logo-img {
+  filter: grayscale(1) contrast(1.1);
+  opacity: 0.65;
+}
+
+:root[data-theme="light"] .card:hover .client-logo-img {
+  filter: none;
+  opacity: 1;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "Plus Jakarta Sans", "Inter", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.62;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+img {
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Скроллбар */
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-4);
+  border-radius: var(--r-full);
+  border: 3px solid var(--ink);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--kraft-deep);
+}
+
+:focus-visible {
+  outline: 2px solid var(--eco);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+.container {
+  width: var(--shell);
+  margin-inline: auto;
+}
+
+.page-main {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 2rem;
+}
+
+/* ═══ АТМОСФЕРА: аврора, орбы, сетка, зерно ═══════════════════ */
+
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  --aurora-x: 50%;
+  --aurora-y: 40%;
+}
+
+.atmosphere__aurora {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(
+      620px 520px at var(--aurora-x) var(--aurora-y),
+      rgba(126, 178, 150, 0.09) 0%,
+      transparent 62%
+    ),
+    radial-gradient(900px 700px at 12% 0%, rgba(217, 168, 108, 0.1) 0%, transparent 60%),
+    radial-gradient(760px 620px at 92% 12%, rgba(126, 178, 150, 0.08) 0%, transparent 62%);
+  transition: background 0.2s linear;
+}
+
+.atmosphere__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: calc(0.5 * var(--atmo-strength));
+}
+
+.atmosphere__orb--a {
+  width: 46vw;
+  height: 46vw;
+  left: -14vw;
+  top: -12vw;
+  background: radial-gradient(circle, rgba(217, 168, 108, 0.34), transparent 70%);
+  animation: orbDrift 26s var(--ease-in-out) infinite;
+}
+
+.atmosphere__orb--b {
+  width: 38vw;
+  height: 38vw;
+  right: -10vw;
+  top: 22vh;
+  background: radial-gradient(circle, rgba(126, 178, 150, 0.22), transparent 70%);
+  animation: orbDrift 34s var(--ease-in-out) infinite reverse;
+}
+
+.atmosphere__orb--c {
+  width: 44vw;
+  height: 44vw;
+  left: 28vw;
+  bottom: -22vw;
+  background: radial-gradient(circle, rgba(126, 178, 150, 0.16), transparent 70%);
+  animation: orbDrift 42s var(--ease-in-out) infinite;
+}
+
+@keyframes orbDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(6vw, 5vh, 0) scale(1.14);
+  }
+  66% {
+    transform: translate3d(-5vw, -4vh, 0) scale(0.92);
+  }
+}
+
+.atmosphere__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 76px 76px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 20%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 20%, transparent 78%);
+}
+
+.atmosphere__grain {
+  position: absolute;
+  inset: -200%;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  animation: grainShift 0.7s steps(4) infinite;
+  mix-blend-mode: var(--grain-blend);
+}
+
+@keyframes grainShift {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2%, 1.5%);
+  }
+  50% {
+    transform: translate(1.5%, -2%);
+  }
+  75% {
+    transform: translate(-1%, -1%);
+  }
+  100% {
+    transform: translate(2%, 1%);
+  }
+}
+
+/* ═══ ПРОГРЕСС СКРОЛЛА ════════════════════════════════════════ */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 400;
+  pointer-events: none;
+  --scroll-progress: 0;
+}
+
+.scroll-progress::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform: scaleX(var(--scroll-progress));
+  transform-origin: 0 50%;
+  background: var(--grad-mixed);
+  box-shadow: 0 0 18px var(--eco-glow);
+}
+
+/* ═══ КАСТОМНЫЙ КУРСОР ════════════════════════════════════════ */
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 500;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.cursor-dot.is-visible,
+.cursor-ring.is-visible {
+  opacity: 1;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--eco);
+  box-shadow: 0 0 12px var(--eco-glow);
+}
+
+.cursor-ring {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-bright);
+  transition:
+    opacity 0.25s ease,
+    width 0.3s var(--ease-spring),
+    height 0.3s var(--ease-spring),
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+
+.cursor-ring.is-active {
+  width: 56px;
+  height: 56px;
+  border-color: var(--eco);
+  background: rgba(126, 178, 150, 0.08);
+}
+
+.cursor-ring.is-down {
+  width: 26px;
+  height: 26px;
+  background: rgba(126, 178, 150, 0.2);
+}
+
+@media (pointer: fine) {
+  body.has-custom-cursor,
+  body.has-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+/* ═══ REVEAL / STAGGER ════════════════════════════════════════ */
+
+/* Используются отдельные свойства translate/scale, чтобы не конфликтовать
+   с transform у наклоняющихся карточек (.tilt). */
+
+.reveal {
+  opacity: 0;
+  transition:
+    opacity 0.85s var(--ease-out),
+    translate 0.95s var(--ease-out),
+    scale 0.95s var(--ease-out),
+    filter 0.85s var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, translate;
+}
+
+.reveal--up {
+  translate: 0 42px;
+}
+.reveal--down {
+  translate: 0 -34px;
+}
+.reveal--left {
+  translate: -46px 0;
+}
+.reveal--right {
+  translate: 46px 0;
+}
+.reveal--zoom {
+  scale: 0.9;
+}
+.reveal--blur {
+  translate: 0 26px;
+  filter: blur(14px);
+}
+.reveal--fade {
+  translate: none;
+}
+
+.reveal.is-in {
+  opacity: 1;
+  translate: none;
+  scale: none;
+  filter: none;
+}
+
+.stagger > * {
+  opacity: 0;
+  translate: 0 34px;
+  transition:
+    opacity 0.75s var(--ease-out),
+    translate 0.85s var(--ease-out);
+}
+
+.stagger.is-in > * {
+  opacity: 1;
+  translate: none;
+}
+
+.stagger.is-in > *:nth-child(1) {
+  transition-delay: calc(var(--stagger-step) * 0);
+}
+.stagger.is-in > *:nth-child(2) {
+  transition-delay: calc(var(--stagger-step) * 1);
+}
+.stagger.is-in > *:nth-child(3) {
+  transition-delay: calc(var(--stagger-step) * 2);
+}
+.stagger.is-in > *:nth-child(4) {
+  transition-delay: calc(var(--stagger-step) * 3);
+}
+.stagger.is-in > *:nth-child(5) {
+  transition-delay: calc(var(--stagger-step) * 4);
+}
+.stagger.is-in > *:nth-child(6) {
+  transition-delay: calc(var(--stagger-step) * 5);
+}
+.stagger.is-in > *:nth-child(7) {
+  transition-delay: calc(var(--stagger-step) * 6);
+}
+.stagger.is-in > *:nth-child(8) {
+  transition-delay: calc(var(--stagger-step) * 7);
+}
+.stagger.is-in > *:nth-child(n + 9) {
+  transition-delay: calc(var(--stagger-step) * 8);
+}
+
+/* Совместимость со старой разметкой */
+.reveal-item {
+  animation: riseIn 0.8s var(--ease-out) both;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ═══ SPLIT TEXT ══════════════════════════════════════════════ */
+
+.split {
+  display: inline;
+}
+
+/* Паддинги расширяют область отсечения, чтобы не срезало выносные
+   элементы букв при line-height < 1; отрицательные margin возвращают метрику. */
+.split__mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding: 0.16em 0.03em 0.18em;
+  margin: -0.16em -0.03em -0.18em;
+}
+
+.split__item {
+  display: inline-block;
+  transform: translate3d(0, 135%, 0) rotate(4deg);
+  opacity: 0;
+  transition:
+    transform 1s var(--ease-out),
+    opacity 0.7s var(--ease-out);
+  transition-delay: var(--split-delay, 0ms);
+  will-change: transform;
+}
+
+.split.is-in .split__item {
+  transform: none;
+  opacity: 1;
+}
+
+/* ═══ MAGNETIC / TILT ═════════════════════════════════════════ */
+
+.magnetic {
+  display: inline-flex;
+  will-change: transform;
+}
+
+.tilt {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --tilt-scale: 1;
+  --spot-x: 50%;
+  --spot-y: 50%;
+  --spot-o: 0;
+  transform: perspective(1100px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) scale(var(--tilt-scale));
+  transform-style: preserve-3d;
+  transition: transform 0.45s var(--ease-out);
+}
+
+/* ═══ MARQUEE ═════════════════════════════════════════════════ */
+
+.marquee {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee__track {
+  display: flex;
+  flex-shrink: 0;
+  animation: marqueeRun var(--marquee-duration, 38s) linear infinite;
+}
+
+.marquee__track.is-reverse {
+  animation-direction: reverse;
+}
+
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+
+.marquee__group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+@keyframes marqueeRun {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ═══ УТИЛИТЫ ═════════════════════════════════════════════════ */
+
+.text-grad {
+  display: inline-block;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.text-lime {
+  color: var(--eco);
+}
+
+.text-kraft {
+  color: var(--kraft);
+}
+
+.noise-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.noise-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.28;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal,
+  .stagger > *,
+  .split__item {
+    opacity: 1 !important;
+    translate: none !important;
+    scale: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .atmosphere__grain {
+    display: none;
+  }
+}

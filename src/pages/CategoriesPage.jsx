@@ -1,7 +1,7 @@
-﻿import { Link } from "react-router-dom";
 import { useStore } from "../store/StoreContext";
 import { PageHead } from "../components/PageHead";
-import { EmptyState } from "../components/Cards";
+import { CategoryCard, EmptyState } from "../components/Cards";
+import { Stagger } from "../components/motion";
 
 export function CategoriesPage() {
   const {
@@ -15,31 +15,21 @@ export function CategoriesPage() {
 
   return (
     <>
-      <PageHead eyebrow="Справочник" title="Категории упаковки" subtitle="Разделение ассортимента по направлениям бизнеса." />
+      <PageHead
+        eyebrow="Справочник"
+        title="Категории упаковки"
+        subtitle="Разделение ассортимента по направлениям бизнеса."
+      />
       <section className="container section">
-        <div className="grid-cards">
+        <Stagger className="grid-cards" step={90}>
           {categories.length ? (
             categories.map((item) => (
-              <article className="card reveal-item" key={item.id}>
-                <div className="card-media">
-                  {item.image ? <img src={item.image} alt={item.title} loading="lazy" /> : <div className="image-fallback">{item.title}</div>}
-                </div>
-                <div className="card-body">
-                  <h3 className="card-title">{item.title}</h3>
-                  <p className="card-text">{item.description}</p>
-                  <div className="card-actions">
-                    <span className="chip">Позиции: {productsCount[item.id] || 0}</span>
-                    <Link className="card-link" to={`/catalog?category=${item.id}`}>
-                      Открыть каталог
-                    </Link>
-                  </div>
-                </div>
-              </article>
+              <CategoryCard key={item.id} item={item} count={productsCount[item.id] || 0} />
             ))
           ) : (
             <EmptyState text="Категории пока не добавлены." />
           )}
-        </div>
+        </Stagger>
       </section>
     </>
   );
