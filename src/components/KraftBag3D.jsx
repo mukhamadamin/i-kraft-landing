@@ -14,7 +14,7 @@ const PrintMark = () => (
  * Интерактивный крафт-пакет на CSS 3D-трансформациях.
  * Реагирует на движение курсора, левитирует и ловит блик.
  */
-export function KraftBag3D({ brandName = "I-KRAFT", tagline = "PACK · TASHKENT", children }) {
+export function KraftBag3D({ brandName = "I-KRAFT", tagline = "PACK · SAMARKAND", children }) {
   const sceneRef = useRef(null);
 
   const applyRotation = useCallback((rx, ry) => {

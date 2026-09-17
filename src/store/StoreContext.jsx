@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { defaultState, replacedImages } from "./defaultData";
+import { defaultState, replacedImages, replacedSettings } from "./defaultData";
 
 const STORAGE_KEY = "kraftvision.react.cms.v1";
 
@@ -51,6 +51,9 @@ function ensureStateShape(raw) {
   const base = deepClone(defaultState);
 
   base.settings = { ...base.settings, ...(safe.settings || {}) };
+  Object.entries(replacedSettings).forEach(([key, map]) => {
+    if (map[base.settings[key]]) base.settings[key] = map[base.settings[key]];
+  });
 
   ["categories", "products", "news", "posts", "clients", "works"].forEach((key) => {
     if (Array.isArray(safe[key])) {

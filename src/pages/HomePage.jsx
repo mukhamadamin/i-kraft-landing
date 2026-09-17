@@ -187,7 +187,7 @@ const faqItems = [
   },
   {
     q: "Можно ли получить образцы до тиража?",
-    a: "Да. В шоуруме можно подержать в руках все форматы, сравнить плотность бумаги и тип ручек. Также отправляем образцы курьером по Ташкенту и в регионы.",
+    a: "Да. В шоуруме можно подержать в руках все форматы, сравнить плотность бумаги и тип ручек. Также отправляем образцы курьером по Самарканду и в регионы.",
   },
   {
     q: "Подходит ли упаковка для горячей и жирной еды?",
@@ -374,7 +374,7 @@ export function HomePage() {
         </div>
 
         <Parallax className="hero-visual" speed={0.06}>
-          <KraftBag3D brandName={(settings.companyName || "I-KRAFT").toUpperCase()} tagline="PACK · TASHKENT">
+          <KraftBag3D brandName={(settings.companyName || "I-KRAFT").toUpperCase()} tagline="PACK · SAMARKAND">
             <div className="float-card float-card-a">
               <span className="float-card-icon">
                 <IconBag />
