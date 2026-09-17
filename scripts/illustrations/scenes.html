@@ -1,0 +1,359 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; background: #e9e1d4; }
+  #stage { width: 1400px; height: 875px; overflow: hidden; }
+  svg { display: block; }
+  text { font-family: "Inter", "DejaVu Sans", "Helvetica Neue", Arial, sans-serif; }
+</style>
+<div id="stage"></div>
+<script>
+/* ───────── палитра сайта ───────── */
+const C = {
+  kraft: "#d9a86c", kraftHi: "#f0c894", kraftDeep: "#a9743c", kraftDark: "#7c5227",
+  ink: "#2a1c0c", paper: "#f0ece5", parch: "#f3ebdc", parchDeep: "#e2d4bd",
+  eco: "#7eb296", ecoDeep: "#4b7e66", red: "#e8695f", cheese: "#f2c14e", fries: "#f0c05a", friesDeep: "#d9a23a",
+  metal: "#cfc8bc", metalDeep: "#9f978a", metalDark: "#6f6860",
+};
+let uid = 0;
+const id = (p) => `${p}${++uid}`;
+const K = 0.42; // подъём задней грани на единицу глубины
+
+/* ───────── общие определения ───────── */
+const defs = `
+<defs>
+  <linearGradient id="gBg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f7f2ea"/><stop offset="1" stop-color="#e4dbcc"/>
+  </linearGradient>
+  <radialGradient id="gSpot" cx="0.5" cy="0.42" r="0.6">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.75"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="gFloor" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.10"/>
+  </linearGradient>
+  <linearGradient id="gFront" x1="0" y1="0" x2="1" y2="0.2">
+    <stop offset="0" stop-color="${C.kraftHi}"/><stop offset="0.55" stop-color="${C.kraft}"/><stop offset="1" stop-color="#c8955a"/>
+  </linearGradient>
+  <linearGradient id="gSide" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#b8834a"/><stop offset="1" stop-color="${C.kraftDeep}"/>
+  </linearGradient>
+  <linearGradient id="gInside" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="${C.kraftDark}"/><stop offset="1" stop-color="#5e3d1c"/>
+  </linearGradient>
+  <linearGradient id="gRope" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="${C.kraftDeep}"/><stop offset="0.5" stop-color="#e6b77c"/><stop offset="1" stop-color="${C.kraftDeep}"/>
+  </linearGradient>
+  <linearGradient id="gParch" x1="0" y1="0" x2="1" y2="0.3">
+    <stop offset="0" stop-color="#faf4e8"/><stop offset="1" stop-color="${C.parchDeep}"/>
+  </linearGradient>
+  <linearGradient id="gMetal" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#e3ddd2"/><stop offset="1" stop-color="${C.metalDeep}"/>
+  </linearGradient>
+  <linearGradient id="gMetalSide" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="${C.metalDeep}"/><stop offset="1" stop-color="${C.metalDark}"/>
+  </linearGradient>
+  <linearGradient id="gWood" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#c99a63"/><stop offset="1" stop-color="${C.kraftDeep}"/>
+  </linearGradient>
+  <linearGradient id="gBun" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="${C.kraftHi}"/><stop offset="1" stop-color="#c98a4c"/>
+  </linearGradient>
+  <linearGradient id="gRollEnd" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="${C.kraftHi}"/><stop offset="1" stop-color="${C.kraftDeep}"/>
+  </linearGradient>
+  <linearGradient id="gCyl" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.45"/><stop offset="0.45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#3a2810" stop-opacity="0.22"/>
+  </linearGradient>
+  <pattern id="pat" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="rotate(-20)">
+    <circle cx="10" cy="10" r="2.6" fill="${C.kraftDeep}" opacity="0.55"/>
+    <path d="M28 30c4-6 10-6 12 0-4 5-9 5-12 0z" fill="${C.ecoDeep}" opacity="0.5"/>
+  </pattern>
+  <pattern id="patSmall" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+    <circle cx="6" cy="6" r="1.8" fill="${C.kraftDeep}" opacity="0.5"/>
+    <path d="M16 18h7" stroke="${C.ecoDeep}" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+  </pattern>
+  <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="16"/></filter>
+  <filter id="blurS" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#3a2810" flood-opacity="0.16"/>
+  </filter>
+</defs>`;
+
+const bg = `
+<rect width="1400" height="875" fill="url(#gBg)"/>
+<rect width="1400" height="875" fill="url(#gSpot)"/>
+<rect y="560" width="1400" height="315" fill="url(#gFloor)"/>`;
+
+const shadow = (cx, cy, rx, ry, o = 0.22) =>
+  `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#3a2810" opacity="${o}" filter="url(#blur)"/>`;
+
+/* ───────── пакет в три четверти ───────── */
+function bag({ x, y, w, h, d = w * 0.34, handles = "twisted", logo = null, mark = null, contents = "", top = "open", scale = 1, faceFill = "url(#gFront)" }) {
+  const kd = d * K;
+  const s = w; // база для пропорций
+  const parts = [];
+  // тень
+  parts.push(shadow(x + w / 2 + d * 0.5, y + h + 6, w * 0.62 + d * 0.5, 14 + w * 0.05));
+  // боковая грань
+  parts.push(`<polygon points="${x + w},${y} ${x + w + d},${y - kd} ${x + w + d},${y + h - kd} ${x + w},${y + h}" fill="url(#gSide)"/>`);
+  parts.push(`<line x1="${x + w + d / 2}" y1="${y - kd / 2}" x2="${x + w + d / 2}" y2="${y + h - kd / 2}" stroke="${C.kraftDark}" stroke-opacity="0.35" stroke-width="2"/>`);
+  // внутренняя часть (видна через горловину)
+  if (top === "open") {
+    parts.push(`<polygon points="${x},${y} ${x + w},${y} ${x + w + d},${y - kd} ${x + d},${y - kd}" fill="url(#gInside)"/>`);
+  } else {
+    parts.push(`<polygon points="${x},${y} ${x + w},${y} ${x + w + d},${y - kd} ${x + d},${y - kd}" fill="${C.kraftHi}"/>`);
+  }
+  // задняя ручка
+  if (handles === "twisted") parts.push(rope(x + d, y - kd, w, 0.9));
+  if (handles === "flat") parts.push(flat(x + d, y - kd, w, 0.9));
+  // содержимое, выглядывающее из горловины
+  if (contents) parts.push(contents);
+  // передняя грань
+  parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${faceFill}"/>`);
+  parts.push(`<line x1="${x}" y1="${y + h * 0.9}" x2="${x + w}" y2="${y + h * 0.9}" stroke="${C.kraftDeep}" stroke-opacity="0.35" stroke-width="2"/>`);
+  parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="${C.kraftDeep}" stroke-opacity="0.25" stroke-width="1.5"/>`);
+  // усиление под ручки
+  if (handles !== "none") {
+    parts.push(`<rect x="${x + s * 0.2}" y="${y + s * 0.03}" width="${s * 0.16}" height="${s * 0.07}" rx="3" fill="${C.kraftDeep}" opacity="0.32"/>`);
+    parts.push(`<rect x="${x + s * 0.64}" y="${y + s * 0.03}" width="${s * 0.16}" height="${s * 0.07}" rx="3" fill="${C.kraftDeep}" opacity="0.32"/>`);
+  }
+  // печать на лицевой стороне
+  if (logo) parts.push(logo(x + w / 2, y + h * 0.52, s));
+  if (mark) parts.push(mark);
+  // передняя ручка
+  if (handles === "twisted") parts.push(rope(x, y, w, 1));
+  if (handles === "flat") parts.push(flat(x, y, w, 1));
+  return `<g filter="url(#soft)">${parts.join("")}</g>`;
+}
+
+function rope(x, y, w, o) {
+  const p = `M${x + w * 0.28},${y + 2} C${x + w * 0.26},${y - w * 0.36} ${x + w * 0.74},${y - w * 0.36} ${x + w * 0.72},${y + 2}`;
+  return `<g opacity="${o}"><path d="${p}" fill="none" stroke="${C.kraftDeep}" stroke-width="${w * 0.062}" stroke-linecap="round"/>
+  <path d="${p}" fill="none" stroke="url(#gRope)" stroke-width="${w * 0.046}" stroke-linecap="round"/>
+  <path d="${p}" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="${w * 0.014}" stroke-dasharray="${w * 0.03} ${w * 0.035}" stroke-linecap="round"/></g>`;
+}
+function flat(x, y, w, o) {
+  const p = `M${x + w * 0.3},${y + 2} V${y - w * 0.2} H${x + w * 0.7} V${y + 2}`;
+  return `<g opacity="${o}"><path d="${p}" fill="none" stroke="${C.kraftDeep}" stroke-width="${w * 0.07}" stroke-linejoin="round"/>
+  <path d="${p}" fill="none" stroke="${C.kraft}" stroke-width="${w * 0.035}" stroke-linejoin="round"/></g>`;
+}
+
+/* монограмма-печать */
+const mono = (text, sub = "") => (cx, cy, s) => `
+  <g transform="translate(${cx} ${cy})">
+    <circle r="${s * 0.17}" fill="${C.ink}" opacity="0.88"/>
+    <text y="${s * 0.07}" text-anchor="middle" font-size="${s * 0.17}" font-weight="800" fill="${C.paper}" letter-spacing="-1">${text}</text>
+    ${sub ? `<text y="${s * 0.3}" text-anchor="middle" font-size="${s * 0.055}" font-weight="700" fill="${C.ink}" opacity="0.7" letter-spacing="2">${sub}</text>` : ""}
+  </g>`;
+const stamp = (cx, cy, s) => `
+  <g transform="translate(${cx} ${cy})" fill="none" stroke="${C.ink}" stroke-opacity="0.8" stroke-width="${s * 0.016}" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M${-s * 0.11},${-s * 0.13} l${-s * 0.05},${s * 0.07} v${s * 0.24} a${s * 0.03},${s * 0.03} 0 0 0 ${s * 0.03},${s * 0.03} h${s * 0.26} a${s * 0.03},${s * 0.03} 0 0 0 ${s * 0.03},${-s * 0.03} v${-s * 0.24} l${-s * 0.05},${-s * 0.07}z"/>
+    <path d="M${-s * 0.16},${-s * 0.06} h${s * 0.32}"/><path d="M${-s * 0.06},${s * 0.02} a${s * 0.06},${s * 0.06} 0 0 0 ${s * 0.12},0"/>
+  </g>`;
+
+/* ───────── бургер ───────── */
+function burger(cx, cy, s) {
+  const w = s;
+  return `<g transform="translate(${cx} ${cy})">
+    <rect x="${-w * 0.46}" y="${-w * 0.02}" width="${w * 0.92}" height="${w * 0.16}" rx="${w * 0.06}" fill="#d59a5a"/>
+    <path d="M${-w * 0.52},${-w * 0.02} q${w * 0.1},${-w * 0.09} ${w * 0.2},0 t${w * 0.2},0 t${w * 0.2},0 t${w * 0.2},0 t${w * 0.16},0 v${w * 0.06} h${-w * 1.08}z" fill="${C.eco}"/>
+    <rect x="${-w * 0.47}" y="${-w * 0.12}" width="${w * 0.94}" height="${w * 0.12}" rx="${w * 0.03}" fill="${C.red}"/>
+    <rect x="${-w * 0.49}" y="${-w * 0.26}" width="${w * 0.98}" height="${w * 0.15}" rx="${w * 0.05}" fill="#5a3a24"/>
+    <path d="M${-w * 0.5},${-w * 0.27} h${w}v${w * 0.05} h${-w * 0.86} l${-w * 0.06},${w * 0.1} l${-w * 0.08},${-w * 0.1}z" fill="${C.cheese}"/>
+    <path d="M${-w * 0.5},${-w * 0.26} a${w * 0.5},${w * 0.36} 0 0 1 ${w},0z" fill="url(#gBun)"/>
+    <g fill="#fff8ea" opacity="0.85">
+      <ellipse cx="${-w * 0.2}" cy="${-w * 0.45}" rx="${w * 0.025}" ry="${w * 0.014}" transform="rotate(-25 ${-w * 0.2} ${-w * 0.45})"/>
+      <ellipse cx="${w * 0.04}" cy="${-w * 0.55}" rx="${w * 0.025}" ry="${w * 0.014}" transform="rotate(10 ${w * 0.04} ${-w * 0.55})"/>
+      <ellipse cx="${w * 0.24}" cy="${-w * 0.46}" rx="${w * 0.025}" ry="${w * 0.014}" transform="rotate(30 ${w * 0.24} ${-w * 0.46})"/>
+      <ellipse cx="${-w * 0.08}" cy="${-w * 0.37}" rx="${w * 0.025}" ry="${w * 0.014}" transform="rotate(-5 ${-w * 0.08} ${-w * 0.37})"/>
+      <ellipse cx="${w * 0.15}" cy="${-w * 0.35}" rx="${w * 0.025}" ry="${w * 0.014}" transform="rotate(20 ${w * 0.15} ${-w * 0.35})"/>
+    </g>
+  </g>`;
+}
+
+/* ───────── картошка фри в кармане ───────── */
+function friesPocket(cx, baseY, s, logo = true) {
+  const w = s, h = s * 1.15, d = s * 0.3, kd = d * K;
+  const x = cx - w / 2, y = baseY - h;
+  const sticks = [-0.34, -0.22, -0.1, 0.02, 0.14, 0.26, 0.36].map((k, i) => {
+    const ang = k * 60, len = h * (0.55 + (i % 3) * 0.12);
+    return `<rect x="${cx + k * w * 0.8 - w * 0.04}" y="${y - len + h * 0.1}" width="${w * 0.08}" height="${len}" rx="${w * 0.02}" fill="${C.fries}" stroke="${C.friesDeep}" stroke-width="2" transform="rotate(${ang} ${cx + k * w * 0.8} ${y + h * 0.35})"/>`;
+  }).join("");
+  const tooth = 6, tw = w / tooth;
+  let front = `M${x},${y}`;
+  for (let i = 0; i < tooth; i++) front += ` l${tw / 2},${-h * 0.05} l${tw / 2},${h * 0.05}`;
+  front += ` L${x + w * 0.92},${y + h} L${x + w * 0.08},${y + h} Z`;
+  return `<g filter="url(#soft)">
+    ${shadow(cx + d * 0.4, baseY + 4, w * 0.6, 12)}
+    <polygon points="${x + w},${y} ${x + w + d},${y - kd} ${x + w * 0.92 + d},${y + h - kd} ${x + w * 0.92},${y + h}" fill="url(#gSide)"/>
+    <polygon points="${x},${y} ${x + w},${y} ${x + w + d},${y - kd} ${x + d},${y - kd}" fill="url(#gInside)"/>
+    ${sticks}
+    <path d="${front}" fill="url(#gFront)" stroke="${C.kraftDeep}" stroke-opacity="0.25" stroke-width="1.5"/>
+    ${logo ? stamp(cx, y + h * 0.58, w * 1.1) : ""}
+  </g>`;
+}
+
+/* ───────── ролл в пергаменте ───────── */
+function wrap(cx, cy, s, rot = -16, monogram = "") {
+  const w = s * 1.3, r = s * 0.3, ex = w / 2 - r * 0.18;
+  return `<g transform="translate(${cx} ${cy}) rotate(${rot})" filter="url(#soft)">
+    ${shadow(0, r + 12, w * 0.5, 14)}
+    <rect x="${-w / 2}" y="${-r}" width="${w}" height="${r * 2}" rx="${r}" fill="url(#gParch)"/>
+    <rect x="${-w / 2}" y="${-r}" width="${w * 0.7}" height="${r * 2}" rx="${r}" fill="url(#pat)"/>
+    <rect x="${-w / 2}" y="${-r}" width="${w}" height="${r * 2}" rx="${r}" fill="url(#gCyl)"/>
+    <path d="M${-w / 2 + w * 0.7},${-r} v${r * 2}" stroke="${C.kraftDeep}" stroke-opacity="0.35" stroke-width="2"/>
+    <path d="M${-w / 2 + w * 0.32},${-r * 0.92} q${w * 0.08},${r * 0.9} 0,${r * 1.84}" fill="none" stroke="${C.kraftDeep}" stroke-opacity="0.18" stroke-width="2"/>
+    <circle cx="${ex}" cy="0" r="${r * 0.98}" fill="#dfb883"/>
+    <circle cx="${ex}" cy="0" r="${r * 0.8}" fill="#f1d9ab"/>
+    <circle cx="${ex}" cy="0" r="${r * 0.6}" fill="#e6c48f"/>
+    <circle cx="${ex}" cy="0" r="${r * 0.42}" fill="#f1d9ab"/>
+    <circle cx="${ex + r * 0.1}" cy="${-r * 0.22}" r="${r * 0.15}" fill="${C.eco}"/>
+    <circle cx="${ex - r * 0.2}" cy="${r * 0.1}" r="${r * 0.14}" fill="${C.red}"/>
+    <circle cx="${ex + r * 0.16}" cy="${r * 0.2}" r="${r * 0.13}" fill="#c98a4c"/>
+    <circle cx="${ex}" cy="0" r="${r * 0.98}" fill="none" stroke="#c9a36c" stroke-width="2"/>
+    ${monogram ? `<g transform="translate(${-w * 0.16} 0) rotate(${-rot})">${mono(monogram)(0, 0, s * 0.62)}</g>` : ""}
+  </g>`;
+}
+
+/* ───────── рулон пергамента ───────── */
+function parchRoll(cx, cy, s, sheetLeft = true) {
+  const r = s * 0.2, len = s * 1.1;
+  return `<g filter="url(#soft)">
+    ${shadow(cx, cy + r + 8, len * 0.6, 12)}
+    ${sheetLeft ? `<path d="M${cx - len * 0.45},${cy + r} h${-s * 1.2} q${-s * 0.1},0 ${-s * 0.1},${-s * 0.06} l${s * 0.18},${-s * 0.5} q${s * 0.03},${-s * 0.06} ${s * 0.12},${-s * 0.06} h${s * 1.05}z" fill="url(#gParch)"/>
+    <path d="M${cx - len * 0.45},${cy + r} h${-s * 1.2} q${-s * 0.1},0 ${-s * 0.1},${-s * 0.06} l${s * 0.18},${-s * 0.5} q${s * 0.03},${-s * 0.06} ${s * 0.12},${-s * 0.06} h${s * 1.05}z" fill="url(#pat)"/>` : ""}
+    <rect x="${cx - len / 2}" y="${cy - r}" width="${len}" height="${r * 2}" fill="url(#gParch)"/>
+    <rect x="${cx - len / 2}" y="${cy - r}" width="${len}" height="${r * 2}" fill="url(#pat)"/>
+    <rect x="${cx - len / 2}" y="${cy - r}" width="${len}" height="${r * 2}" fill="url(#gCyl)"/>
+    <ellipse cx="${cx + len / 2}" cy="${cy}" rx="${r * 0.42}" ry="${r}" fill="#f7f0e3" stroke="${C.parchDeep}" stroke-width="2"/>
+    <ellipse cx="${cx + len / 2}" cy="${cy}" rx="${r * 0.14}" ry="${r * 0.34}" fill="${C.kraftDeep}" opacity="0.6"/>
+    <ellipse cx="${cx + len / 2}" cy="${cy}" rx="${r * 0.28}" ry="${r * 0.66}" fill="none" stroke="${C.parchDeep}" stroke-width="2"/>
+    <ellipse cx="${cx - len / 2}" cy="${cy}" rx="${r * 0.42}" ry="${r}" fill="${C.parchDeep}"/>
+  </g>`;
+}
+
+/* ───────── багет и круассан ───────── */
+const baguette = (cx, cy, s, rot = -28) => `<g transform="translate(${cx} ${cy}) rotate(${rot})">
+  <rect x="${-s * 0.5}" y="${-s * 0.11}" width="${s}" height="${s * 0.22}" rx="${s * 0.11}" fill="#d99a54"/>
+  <g stroke="#f2cf98" stroke-width="${s * 0.02}" stroke-linecap="round" fill="none">
+    <path d="M${-s * 0.3},${-s * 0.06} l${s * 0.1},${s * 0.12}"/><path d="M${-s * 0.1},${-s * 0.06} l${s * 0.1},${s * 0.12}"/><path d="M${s * 0.1},${-s * 0.06} l${s * 0.1},${s * 0.12}"/>
+  </g></g>`;
+
+/* ───────── машина: линия производства ───────── */
+function machine(x, y) {
+  const parts = [];
+  // рулон бумаги
+  const rx = x - 40, ry = y + 60, rr = 105, rl = 120;
+  parts.push(shadow(rx + 60, y + 260, 120, 12));
+  parts.push(`<g filter="url(#soft)">
+    <rect x="${rx - rl}" y="${ry - rr}" width="${rl}" height="${rr * 2}" fill="url(#gFront)"/>
+    <ellipse cx="${rx - rl}" cy="${ry}" rx="${rr * 0.34}" ry="${rr}" fill="${C.kraftDeep}"/>
+    <ellipse cx="${rx}" cy="${ry}" rx="${rr * 0.34}" ry="${rr}" fill="url(#gRollEnd)"/>
+    <ellipse cx="${rx}" cy="${ry}" rx="${rr * 0.24}" ry="${rr * 0.72}" fill="none" stroke="${C.kraftDeep}" stroke-opacity="0.35" stroke-width="2"/>
+    <ellipse cx="${rx}" cy="${ry}" rx="${rr * 0.1}" ry="${rr * 0.3}" fill="${C.kraftDark}"/>
+    <path d="M${rx - rl},${ry - rr} L${x + 120},${y - 40} v14 L${rx - rl},${ry - rr + 12}z" fill="${C.kraftHi}"/>
+  </g>`);
+  // корпус
+  const mx = x + 120, my = y - 90, mw = 420, mh = 350, md = 70, kd = md * K;
+  parts.push(shadow(mx + mw / 2 + 40, my + mh + 6, mw * 0.6, 16));
+  parts.push(`<g filter="url(#soft)">
+    <polygon points="${mx + mw},${my} ${mx + mw + md},${my - kd} ${mx + mw + md},${my + mh - kd} ${mx + mw},${my + mh}" fill="url(#gMetalSide)"/>
+    <polygon points="${mx},${my} ${mx + mw},${my} ${mx + mw + md},${my - kd} ${mx + md},${my - kd}" fill="#eee9e0"/>
+    <rect x="${mx}" y="${my}" width="${mw}" height="${mh}" fill="url(#gMetal)"/>
+    <rect x="${mx + 26}" y="${my + 30}" width="${mw - 52}" height="120" rx="10" fill="#f5f1ea" stroke="${C.metalDeep}" stroke-width="2"/>
+    <rect x="${mx + 26}" y="${my + 60}" width="${mw - 52}" height="60" fill="${C.kraftHi}" opacity="0.9"/>
+    <g fill="${C.metalDeep}"><circle cx="${mx + 60}" cy="${my + 90}" r="18"/><circle cx="${mx + mw - 60}" cy="${my + 90}" r="18"/><circle cx="${mx + mw / 2}" cy="${my + 90}" r="18"/></g>
+    <rect x="${mx + 26}" y="${my + 180}" width="150" height="90" rx="8" fill="#2a2622"/>
+    <g fill="${C.eco}"><circle cx="${mx + 50}" cy="${my + 204}" r="6"/><circle cx="${mx + 72}" cy="${my + 204}" r="6"/></g>
+    <circle cx="${mx + 96}" cy="${my + 204}" r="6" fill="${C.red}"/>
+    <rect x="${mx + 42}" y="${my + 224}" width="118" height="10" rx="5" fill="#4a453f"/>
+    <rect x="${mx + 42}" y="${my + 244}" width="80" height="10" rx="5" fill="#4a453f"/>
+    <rect x="${mx + 200}" y="${my + 180}" width="${mw - 226}" height="90" rx="8" fill="#e6e1d8" stroke="${C.metalDeep}" stroke-width="2"/>
+    <rect x="${mx + 220}" y="${my + 200}" width="${mw - 266}" height="50" rx="4" fill="${C.kraft}" opacity="0.5"/>
+    <rect x="${mx + 24}" y="${my + mh}" width="26" height="40" fill="${C.metalDark}"/><rect x="${mx + mw - 50}" y="${my + mh}" width="26" height="40" fill="${C.metalDark}"/>
+  </g>`);
+  // конвейер с готовыми пакетами
+  const cx0 = mx + mw + md + 10, cy0 = my + mh - 40, cw = 330;
+  parts.push(`<g filter="url(#soft)">
+    <rect x="${cx0}" y="${cy0}" width="${cw}" height="22" rx="11" fill="#4a453f"/>
+    <g fill="${C.metalDeep}"><circle cx="${cx0 + 30}" cy="${cy0 + 11}" r="8"/><circle cx="${cx0 + 100}" cy="${cy0 + 11}" r="8"/><circle cx="${cx0 + 170}" cy="${cy0 + 11}" r="8"/><circle cx="${cx0 + 240}" cy="${cy0 + 11}" r="8"/><circle cx="${cx0 + 310}" cy="${cy0 + 11}" r="8"/></g>
+    <rect x="${cx0 + 20}" y="${cy0 + 22}" width="16" height="46" fill="${C.metalDark}"/><rect x="${cx0 + cw - 36}" y="${cy0 + 22}" width="16" height="46" fill="${C.metalDark}"/>
+  </g>`);
+  parts.push(bag({ x: cx0 + 30, y: cy0 - 120, w: 96, h: 120, handles: "twisted" }));
+  parts.push(bag({ x: cx0 + 175, y: cy0 - 120, w: 96, h: 120, handles: "twisted" }));
+  return parts.join("");
+}
+
+/* ───────── полка шоурума ───────── */
+function shelf(x, y, w) {
+  return `<g filter="url(#soft)">
+    <polygon points="${x},${y} ${x + w},${y} ${x + w + 40},${y - 17} ${x + 40},${y - 17}" fill="#e2bf8c"/>
+    <rect x="${x}" y="${y}" width="${w}" height="22" fill="url(#gWood)"/>
+    <polygon points="${x + w},${y} ${x + w + 40},${y - 17} ${x + w + 40},${y + 5} ${x + w},${y + 22}" fill="${C.kraftDark}"/>
+  </g>`;
+}
+
+/* ───────── бирка ───────── */
+const tag = (x, y, text) => `<g transform="translate(${x} ${y}) rotate(-8)" filter="url(#soft)">
+  <path d="M0,0 h70 l20,22 l-20,22 h-70z" fill="${C.paper}" stroke="${C.kraftDeep}" stroke-width="2"/>
+  <circle cx="76" cy="22" r="5" fill="none" stroke="${C.kraftDeep}" stroke-width="2"/>
+  <text x="32" y="30" text-anchor="middle" font-size="22" font-weight="800" fill="${C.ink}">${text}</text>
+</g>`;
+
+/* ───────── сцены ───────── */
+const FLOOR = 690;
+const scenes = {
+  "cat-handles": () => bag({ x: 300, y: 300, w: 330, h: 390, handles: "twisted", logo: stamp })
+    + bag({ x: 760, y: 360, w: 300, h: 330, handles: "flat", logo: stamp }),
+  "bag-twisted": () => bag({ x: 520, y: 280, w: 360, h: 410, handles: "twisted", logo: mono("IK", "KRAFT · PACK") }),
+  "bag-flat-handle": () => bag({ x: 500, y: 320, w: 400, h: 370, handles: "flat", logo: mono("IK", "KRAFT · PACK") }),
+  "cat-no-handles": () => bag({ x: 330, y: 300, w: 300, h: 390, handles: "none", logo: stamp,
+      contents: baguette(480, 300, 300, -28) })
+    + bag({ x: 800, y: 420, w: 260, h: 270, d: 40, handles: "none", top: "closed", logo: stamp }),
+  "bag-bottom": () => bag({ x: 540, y: 250, w: 320, h: 440, handles: "none", logo: mono("IK", "BAKERY"),
+      contents: baguette(700, 240, 320, -30) + baguette(760, 250, 290, -18) }),
+  "cat-fastfood": () => bag({ x: 230, y: 420, w: 360, h: 270, handles: "none", logo: stamp,
+      contents: burger(410, 420, 230) })
+    + friesPocket(760, 690, 210)
+    + wrap(1090, 610, 260, -18),
+  "bag-burger": () => bag({ x: 480, y: 400, w: 440, h: 290, handles: "none", logo: mono("FB", "BURGER"),
+      contents: burger(700, 395, 300) }),
+  "bag-fries": () => friesPocket(700, 690, 300),
+  "cat-paper": () => parchRoll(720, 540, 380) + wrap(1060, 470, 230, -30),
+  "paper-wrap": () => `<g transform="translate(330 400)" filter="url(#soft)">
+      <rect x="-170" y="0" width="340" height="230" rx="4" fill="url(#gParch)" transform="skewX(-6)"/>
+      <rect x="-170" y="0" width="340" height="230" rx="4" fill="url(#pat)" transform="skewX(-6)"/>
+    </g>` + wrap(790, 500, 400, -14),
+  "news-line": () => machine(230, 340),
+  "news-showroom": () => shelf(230, 380, 940) + shelf(230, 640, 940)
+    + bag({ x: 300, y: 250, w: 110, h: 130, handles: "twisted", logo: stamp })
+    + bag({ x: 470, y: 270, w: 100, h: 110, handles: "flat", logo: stamp })
+    + bag({ x: 640, y: 240, w: 120, h: 140, handles: "none", logo: stamp })
+    + bag({ x: 830, y: 290, w: 140, h: 90, handles: "none", logo: stamp })
+    + friesPocket(1070, 380, 80, false)
+    + bag({ x: 300, y: 500, w: 130, h: 140, handles: "twisted", logo: mono("IK") })
+    + bag({ x: 500, y: 520, w: 120, h: 120, handles: "flat", logo: mono("IK") })
+    + wrap(760, 610, 120, -20)
+    + bag({ x: 900, y: 490, w: 110, h: 150, handles: "none", logo: mono("IK") }),
+  "post-branding": () => bag({ x: 520, y: 280, w: 360, h: 410, handles: "twisted", logo: mono("IK", "KRAFT · PACK") })
+    + `<g fill="none" stroke="${C.ink}" stroke-opacity="0.55" stroke-width="6" stroke-linecap="round">
+        <path d="M330 200 v-50 h50"/><path d="M1070 200 v-50 h-50"/><path d="M330 760 v50 h50"/><path d="M1070 760 v50 h-50"/>
+      </g>
+      <g transform="translate(1000 300)" filter="url(#soft)">
+        <rect x="-70" y="-46" width="140" height="92" rx="46" fill="${C.paper}"/>
+        <path d="M0 18 C-30 -2 -22 -32 0 -20 C22 -32 30 -2 0 18z" fill="${C.red}"/>
+        <text x="16" y="8" font-size="26" font-weight="800" fill="${C.ink}">1.2k</text>
+      </g>`,
+  "post-cost": () => bag({ x: 250, y: 470, w: 210, h: 220, handles: "twisted", logo: stamp }) + tag(300, 400, "S")
+    + bag({ x: 560, y: 400, w: 260, h: 290, handles: "twisted", logo: stamp }) + tag(625, 322, "M")
+    + bag({ x: 930, y: 330, w: 310, h: 360, handles: "twisted", logo: stamp }) + tag(1010, 236, "L"),
+  "work-fastbite": () => bag({ x: 300, y: 300, w: 330, h: 390, handles: "twisted", logo: mono("FB", "FASTBITE") })
+    + bag({ x: 760, y: 440, w: 380, h: 250, handles: "none", logo: mono("FB"), contents: burger(950, 435, 250) }),
+  "work-lavash": () => parchRoll(270, 610, 240, false) + wrap(600, 470, 360, -14, "LC") + wrap(980, 590, 320, -22, "LC"),
+};
+
+const name = new URLSearchParams(location.search).get("scene") || "bag-twisted";
+document.getElementById("stage").innerHTML =
+  `<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="875" viewBox="0 0 1400 875">${defs}${bg}${scenes[name]()}</svg>`;
+document.title = name;
+</script>
