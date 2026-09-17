@@ -344,7 +344,7 @@ a.chip:hover,
 
 .card-media {
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--ink-2);
 }
@@ -557,7 +557,7 @@ a.chip:hover,
 
 .article-cover {
   position: relative;
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   background: var(--ink-2);
 }

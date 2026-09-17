@@ -1,298 +1,315 @@
+/* Данные собраны из открытых источников компании: шапки Instagram
+   (@i_kraft____) и Telegram-канала t.me/I_Kraft — тексты постов, размеры
+   пакетов, клиенты и фото. Ничего, чего там нет, здесь не выдумано:
+   пустое поле означает «уточнить у компании». */
+
 /* Фото лежат в public/photos и отдаются относительно base, поэтому путь
    собираем через BASE_URL — на GitHub Pages сайт живёт в подкаталоге. */
 const photo = (name) => `${import.meta.env.BASE_URL}photos/${name}.jpg`;
 
+/* Версия набора данных. Состояние сайта живёт в localStorage; когда
+   defaultState меняется целиком (новые id, другие коллекции), старое
+   сохранённое состояние нужно не мигрировать, а заменить — см. readState. */
+export const dataVersion = 2;
+
 export const defaultState = {
+  dataVersion,
   settings: {
-    companyName: "I-Kraft-Pack",
-    slogan: "Производство крафтовых пакетов",
-    phone: "+998 90 123 45 67",
-    email: "sales@ikraftpack.uz",
-    address: "Самарканд",
-    telegram: "@ikraftpack",
-    whatsapp: "+998901234567",
-    heroTitle: "Производство крафтовых пакетов с вашим логотипом",
+    companyName: "I-Kraft Pack",
+    slogan: "Больше, чем просто упаковка",
+    phone: "",
+    email: "",
+    address: "Самаркандская область, Джамбай, Чалакурган 1256, 140412",
+    telegram: "@Xurshed110",
+    telegramChannel: "@I_Kraft",
+    instagram: "@i_kraft____",
+    whatsapp: "",
+    heroTitle: "Крафт-пакеты с вашим логотипом — производство в Самарканде",
     heroSubtitle:
-      "Собственное производство бумажных пакетов: с кручеными и плоскими ручками, без ручек и под фастфуд. Фирменная печать до 3 цветов, стабильное качество от партии к партии и быстрые сроки.",
+      "Бумажная упаковка для бизнеса: пакеты с кручеными ручками и без, натуральный и белый крафт, печать логотипа. Быстрая доставка по всему Узбекистану. Экологично и современно.",
   },
   categories: [
     {
-      id: "cat_handles",
-      title: "Пакеты с ручками",
+      id: "cat_twisted",
+      title: "Пакеты с кручеными ручками",
       slug: "pakety-s-ruchkami",
-      description: "Крафт-пакеты с кручеными и плоскими ручками — витрина бренда на вынос.",
-      image: photo("cat-handles"),
+      description: "Натуральный или белый крафт с бумажными кручеными ручками — для ресторанов, магазинов и подарков.",
+      image: photo("shirin-tabaka"),
     },
     {
-      id: "cat_flat",
+      id: "cat_nohandle",
       title: "Пакеты без ручек",
       slug: "pakety-bez-ruchek",
-      description: "Пакеты с прямоугольным дном и саше — для выпечки, доставки и ритейла.",
-      image: photo("cat-no-handles"),
+      description: "Пакеты с прямоугольным дном для фастфуда, доставки еды и супермаркетов.",
+      image: photo("ipak-yoli"),
     },
     {
-      id: "cat_fastfood",
-      title: "Фастфуд-серия",
-      slug: "fastfood",
-      description: "Упаковка для бургеров, лаваша и фри: жиростойкие материалы и точная посадка.",
-      image: photo("cat-fastfood"),
+      id: "cat_white",
+      title: "Белый крафт",
+      slug: "belyy-kraft",
+      description: "Белая крафт-бумага — чистый лист для бренда: логотип читается ярче и контрастнее.",
+      image: photo("bellis"),
     },
     {
-      id: "cat_paper",
-      title: "Пергамент и обёртка",
-      slug: "pergament",
-      description: "Пищевая бумага и пергамент с паттерн-печатью — дополнение к линейке пакетов.",
-      image: photo("cat-paper"),
+      id: "cat_plain",
+      title: "Пакеты без печати",
+      slug: "bez-pechati",
+      description: "Чистый крафт без надписей — под любой стиль, для кафе, магазинов и подарочной упаковки.",
+      image: photo("plain-kraft"),
     },
   ],
   products: [
     {
-      id: "prd_bag_twisted",
+      id: "prd_twisted_kraft",
       title: "Крафт-пакет с кручеными ручками",
-      categoryId: "cat_handles",
-      summary: "Флагманский формат: прочные ручки, ровная печать, презентабельный вид.",
+      categoryId: "cat_twisted",
+      summary: "Натуральный крафт, кручёные ручки, логотип на лицевой стороне.",
       description:
-        "Классический крафт-пакет для кафе, магазинов и доставки. Бумага 90-120 г/м2, укреплённое дно, ручки выдерживают до 6 кг. Печать логотипа до 3 цветов по всей плоскости.",
-      specs: "Размеры: 240x140x280 / 320x180x370 мм; Бумага: крафт 90-120 г/м2; Печать: до 3 цветов",
-      minOrder: "От 2 000 шт",
-      tags: "крафт-пакет, ручки, брендинг",
-      image: photo("bag-twisted"),
+        "Вместительный и прочный пакет из натурального крафта. Подходит для доставки, подачи на месте и подарков — как у Shirin Tabaka, Beliss Premium Restaurant и Du Chinor. Размер и печать подбираем под ваш бренд.",
+      specs: "Размеры (ширина × боковая × высота): 18×11×23, 30×18×31, 30×15×40 см и другие под заказ; Материал: натуральный крафт; Печать: логотип",
+      minOrder: "Тираж — по запросу",
+      tags: "крафт, ручки, ресторан, логотип",
+      image: photo("shirin-tabaka"),
     },
     {
-      id: "prd_bag_flat_handle",
-      title: "Крафт-пакет с плоскими ручками",
-      categoryId: "cat_handles",
-      summary: "Экономичный вариант с ручками для больших тиражей.",
+      id: "prd_twisted_white",
+      title: "Белый крафт-пакет с кручеными ручками",
+      categoryId: "cat_white",
+      summary: "Белая основа, на которой логотип читается ярче всего.",
       description:
-        "Оптимален для сетей: ниже себестоимость при том же формате и качестве печати. Плоские ручки надёжно вклеены, пакет держит форму на витрине и в доставке.",
-      specs: "Размеры: 220x120x250 / 280x150x320 мм; Бумага: крафт 80-100 г/м2; Печать: до 2 цветов",
-      minOrder: "От 3 000 шт",
-      tags: "крафт-пакет, эконом, сети",
-      image: photo("bag-flat-handle"),
+        "Белый крафт — как чистый лист для вашего бренда. Универсальный пакет для повседневных покупок и подарочной подачи: такие делали для «Орехового Сада» и Rusan — Именные подарки.",
+      specs: "Размеры (ширина × боковая × высота): 22×12×30, 32×12×42 см и другие под заказ; Материал: белый крафт; Печать: логотип",
+      minOrder: "Тираж — по запросу",
+      tags: "белый крафт, ручки, подарки",
+      image: photo("orexoviy-sad"),
     },
     {
-      id: "prd_bag_bottom",
-      title: "Пакет с прямоугольным дном без ручек",
-      categoryId: "cat_flat",
-      summary: "Для выпечки, кофеен и ритейла: быстро раскрывается и устойчиво стоит.",
+      id: "prd_sos_kraft",
+      title: "Пакет без ручек, натуральный крафт",
+      categoryId: "cat_nohandle",
+      summary: "Прямоугольное дно, устойчиво стоит — для фастфуда, доставки и супермаркетов.",
       description:
-        "Пакет без ручек с широким дном — удобен на кассе и в упаковочной зоне. Возможен жиростойкий внутренний слой для тёплой продукции.",
-      specs: "Размеры: 170x100x260 / 200x120x290 мм; Бумага: крафт 70-90 г/м2; Печать: 1-2 цвета",
-      minOrder: "От 5 000 шт",
-      tags: "без ручек, выпечка, кофейня",
-      image: photo("bag-bottom"),
+        "Формат, который выбирают бургерные и магазины: Rich Burger, BBQ Burger, Ipak Yo'li Supermarket. Печать логотипа, контактов и QR-кода на лицевой и боковых сторонах.",
+      specs: "Размеры (ширина × боковая × высота): 18×10×27, 24×15×32, 27×15×30 см и другие под заказ; Материал: натуральный крафт; Печать: логотип, контакты, QR",
+      minOrder: "Тираж — по запросу",
+      tags: "без ручек, фастфуд, доставка",
+      image: photo("ipak-yoli"),
     },
     {
-      id: "prd_bag_burger",
-      title: "Burger Bag Signature",
-      categoryId: "cat_fastfood",
-      summary: "Пакет под бургеры с широким лицом под фирменный логотип.",
+      id: "prd_sos_white",
+      title: "Пакет без ручек, белый крафт",
+      categoryId: "cat_nohandle",
+      summary: "Белая основа для яркого фирменного цвета — как у Chicken Eleven.",
       description:
-        "Подходит для бургерных и dark kitchen. Жиростойкий слой, размеры S/M/L, ровная печать и устойчивая геометрия шва.",
-      specs: "Размер: 16x18 см; Материал: крафт 80 г/м2 + барьер; Печать: 1-3 цвета",
-      minOrder: "От 3 000 шт",
-      tags: "burger, take-away, фастфуд",
-      image: photo("bag-burger"),
+        "Прочный белый крафт, чёткий цветной логотип и оптимальные размеры под заказ на вынос. Сохраняет атмосферу бренда даже вне ресторана.",
+      specs: "Размеры (ширина × боковая × высота): 24×15×32 см и другие под заказ; Материал: белый крафт; Печать: логотип",
+      minOrder: "Тираж — по запросу",
+      tags: "без ручек, белый крафт, фастфуд",
+      image: photo("chicken-eleven"),
     },
     {
-      id: "prd_bag_fries",
-      title: "Fries Pocket Air",
-      categoryId: "cat_fastfood",
-      summary: "Карман для фри с комфортным захватом и вентиляцией.",
+      id: "prd_fullcolor",
+      title: "Пакет с полноцветной печатью",
+      categoryId: "cat_nohandle",
+      summary: "Фирменный цвет по всей поверхности и паттерн на боковых сторонах.",
       description:
-        "Упаковка держит форму, не теряет внешний вид в доставке и подходит под вертикальную выкладку на витрине.",
-      specs: "Размер: 9x15 см; Материал: крафт 70 г/м2; Печать: 1-2 цвета",
-      minOrder: "От 4 000 шт",
-      tags: "fries, delivery",
-      image: photo("bag-fries"),
+        "Когда нужен не просто логотип, а фирменный цвет целиком — как бордовый пакет BBQ Burger с паттерном на боковинах и QR-кодом на лицевой стороне.",
+      specs: "Размеры (ширина × боковая × высота): 27×15×30 см и другие под заказ; Материал: крафт; Печать: полноцветная, паттерн",
+      minOrder: "Тираж — по запросу",
+      tags: "полноцвет, паттерн, бургерная",
+      image: photo("bbq-burger"),
     },
     {
-      id: "prd_paper_01",
-      title: "Пергамент PatternWrap",
-      categoryId: "cat_paper",
-      summary: "Фирменный паттерн и логотип по всей плоскости.",
+      id: "prd_appetit",
+      title: "Пакеты «Приятного аппетита»",
+      categoryId: "cat_nohandle",
+      summary: "Готовый дизайн для фастфуда и доставки — два размера.",
       description:
-        "Дополнение к линейке пакетов: обёртка для бургеров, лаваша и десертов. Доступна печать паттерном и брендированными блоками контактов.",
-      specs: "Размер: 30x30 см; Материал: пищевой пергамент; Печать: до 2 цветов",
-      minOrder: "От 10 кг",
-      tags: "пергамент, обертка, бренд",
-      image: photo("paper-wrap"),
+        "Крафтовые пакеты с надписью «Приятного аппетита» и паттерном из еды. Идеально подходят для фастфуда и доставки, когда собственный дизайн ещё не готов. Эстетично, удобно и экологично.",
+      specs: "Большой: 24×15×32 см; Маленький: 18×15×27 см (ширина × боковая × высота); Материал: натуральный крафт; Печать: готовый дизайн",
+      minOrder: "Готовый дизайн",
+      tags: "готовый дизайн, фастфуд, доставка",
+      image: photo("priyatnogo-appetita"),
+    },
+    {
+      id: "prd_plain",
+      title: "Пакет без надписей",
+      categoryId: "cat_plain",
+      summary: "Чистый крафт — универсальный холст для любых идей.",
+      description:
+        "Аккуратный, практичный и подходящий под любой стиль. Для кафе, магазинов, доставки и подарочной упаковки. Когда форма проста — возможности безграничны.",
+      specs: "Размеры (ширина × боковая × высота): 18×10×27 см; Материал: натуральный крафт; Печать: без печати",
+      minOrder: "В наличии",
+      tags: "без печати, крафт, в наличии",
+      image: photo("plain-kraft"),
     },
   ],
   news: [
     {
-      id: "news_2026_01",
-      title: "Запустили новую линию производства пакетов с ручками",
-      date: "2026-02-18",
-      excerpt: "Мощность выросла до 50 000 пакетов в смену, улучшена точность вклейки ручек.",
+      id: "news_production",
+      title: "Процесс. Без музыки. Без фильтров. Только настоящее",
+      date: "2025-06-15",
+      excerpt: "Показали производство как есть: каждое движение и каждый звук — часть живого цеха.",
       content:
-        "Мы ввели в работу новую автоматическую линию по производству крафт-пакетов с кручеными ручками.\nТеперь мы быстрее обрабатываем крупные заказы сетей и точнее передаём фирменные цвета бренда при печати.\nДля клиентов это означает меньше итераций на согласование и более короткий цикл от макета до поставки.",
-      image: photo("news-line"),
+        "Иногда слова — лишние. Наш ролик передаёт то, что не скажешь словами: каждое движение, каждый звук — часть живого производства. Никаких постановок. Только честный, чистый труд.\nМы гордимся тем, что создаём, и любим этот процесс — от начала до упаковки.\nKraft — это не просто бумага. Это ритм. Это культура. Это стиль жизни. Ролик — в нашем Telegram-канале.",
+      image: photo("production"),
     },
     {
-      id: "news_2026_02",
-      title: "Открыли шоурум образцов пакетов и упаковки",
-      date: "2026-01-25",
-      excerpt: "Можно подержать в руках все форматы пакетов и сравнить бумагу перед запуском тиража.",
+      id: "news_appetit",
+      title: "Пакеты «Приятного аппетита» — готовый дизайн для фастфуда",
+      date: "2025-07-31",
+      excerpt: "Два размера крафт-пакетов с готовой печатью: можно заказать без разработки собственного макета.",
       content:
-        "В шоуруме представлены пакеты с ручками и без, фастфуд-серия и пергамент в разных форматах.\nКоманда помогает подобрать плотность бумаги, размер и тип печати под вашу задачу.\nЗапись на встречу доступна по телефону и в Telegram.",
-      image: photo("news-showroom"),
+        "Крафтовые пакеты с надписью «Приятного аппетита» идеально подходят для фастфуда и доставки еды.\nБольшой размер: высота 32 см, ширина 24 см, боковая сторона 15 см. Маленький размер: высота 27 см, ширина 18 см, боковая сторона 15 см.\nЭстетично, удобно и экологично.",
+      image: photo("priyatnogo-appetita"),
     },
   ],
   posts: [
     {
-      id: "post_guide_branding",
-      title: "Как сделать пакет, который фотографируют в соцсетях",
-      date: "2026-03-05",
-      author: "Команда I-Kraft-Pack",
-      readTime: "6 мин",
-      excerpt: "Практический разбор композиции логотипа, контраста и читаемости на крафте.",
+      id: "post_plastic_ban",
+      title: "Запрет пластиковых пакетов с 2027 года: что это значит для бизнеса",
+      date: "2025-06-25",
+      author: "I-Kraft Pack",
+      readTime: "3 мин",
+      excerpt: "В Узбекистане запретят производство и использование пластиковых пакетов. Разбираем, что делать бизнесу.",
       content:
-        "Брендированный пакет давно стал частью контента.\nЧтобы бренд замечали, важно не только поставить логотип, но и правильно расположить его на лицевой стороне пакета.\nИспользуйте контрастные цвета, оставляйте воздух вокруг знака и проверяйте читаемость с расстояния 1-1.5 метра.\nДля крафтовой бумаги лучше всего работают тёмные насыщенные цвета и белая печать.",
-      image: photo("post-branding"),
+        "С 2027 года в Узбекистане запретят производство и использование пластиковых пакетов. Цель — улучшение экологии и снижение загрязнения.\nПочему это важно: пластиковые пакеты не разлагаются и загрязняют природу. Закон стимулирует переход на экологичные альтернативы.\nЧто это значит для бизнеса: нужно будет использовать экологичные материалы — например, крафт-пакеты. Это улучшает имидж и привлекает экологически сознательных клиентов.\nМы производим крафт-пакеты в Самарканде и доставляем по всему Узбекистану — можно перейти на бумагу уже сейчас.",
+      image: photo("plastic-ban"),
     },
     {
-      id: "post_cost_control",
-      title: "5 способов снизить себестоимость пакетов без потери качества",
-      date: "2026-02-10",
-      author: "Технологический отдел",
-      readTime: "8 мин",
-      excerpt: "Оптимизация размеров, плотности бумаги и тиражей для кафе и сетей доставки.",
+      id: "post_margaret_knight",
+      title: "Маргарет Найт — женщина, которая изменила упаковку",
+      date: "2025-06-16",
+      author: "I-Kraft Pack",
+      readTime: "4 мин",
+      excerpt: "История изобретательницы машины для бумажных пакетов с плоским дном — тех самых, которые мы делаем до сих пор.",
       content:
-        "Экономия начинается с правильного техзадания.\nЕсли стандартизировать 2-3 размера пакета и заранее планировать тираж, можно существенно снизить стоимость единицы.\nВыбирайте плоские ручки вместо кручёных там, где нагрузка небольшая, и оптимальную плотность бумаги под конкретный продукт.\nРекомендуем регулярно пересматривать упаковочную матрицу вместе с производителем.",
-      image: photo("post-cost"),
+        "Маргарет Найт родилась 14 февраля 1838 года в США, штат Мэн. Выросла в бедной семье и с детства работала на фабрике.\nВ 1868 году она изобрела аппарат, который впервые начал производить бумажные пакеты с плоским дном — именно такие, какие мы используем до сих пор. До неё пакеты были неудобными и нестабильными. Она увидела проблему и нашла решение: аппарат собрала вручную, без технического образования и поддержки.\nКогда мужчина попытался украсть её идею и запатентовать её как свою, она подала в суд, доказала авторство — и победила.\nЕё изобретение — основа современного крафта. Каждый пакет, который мы делаем, — продолжение её идеи.",
+      image: photo("margaret-knight"),
     },
   ],
   clients: [
-    {
-      id: "cl_fastbite",
-      name: "FastBite",
-      industry: "Сеть бургерных",
-      about: "20 точек в городе, фокус на доставке и узнаваемом бренде.",
-      website: "https://example.com",
-      logo: "",
-    },
-    {
-      id: "cl_lavashcity",
-      name: "Lavash City",
-      industry: "Street-food",
-      about: "Лидирующая сеть по продаже лаваша и донеров.",
-      website: "https://example.com",
-      logo: "",
-    },
-    {
-      id: "cl_friespoint",
-      name: "Fries Point",
-      industry: "Fast casual",
-      about: "Монопродукт картофель фри, акцент на визуал упаковки.",
-      website: "https://example.com",
-      logo: "",
-    },
+    { id: "cl_chicken_eleven", name: "Chicken Eleven", industry: "Куриный фастфуд", about: "Ресторан в Самарканде: ул. Узбекистанская 20 и ул. Амира Темура 224.", website: "", logo: "" },
+    { id: "cl_orexoviy_sad", name: "Ореховый Сад", industry: "Сухофрукты и орехи", about: "Магазин сухофруктов в Самарканде — «сухофрукты на любой вкус».", website: "", logo: "" },
+    { id: "cl_bellis", name: "Bellis Premium Restaurant", industry: "Ресторан", about: "Премиальный ресторан, ул. Узбекистанская.", website: "", logo: "" },
+    { id: "cl_anastasiya", name: "Anastasiya Flowers", industry: "Цветочный магазин", about: "Цветочный магазин «Анастасия», flowers by L&Z — с 2009 года.", website: "", logo: "" },
+    { id: "cl_bbq_burger", name: "BBQ Burger", industry: "Бургерная", about: "Barbeque Burger — бургеры, сеты и доставка.", website: "", logo: "" },
+    { id: "cl_du_chinor", name: "Du Chinor Korean Restaurant", industry: "Корейская кухня", about: "Ресторан корейской кухни в Самарканде, ТРЦ Makon Mall.", website: "", logo: "" },
+    { id: "cl_rusan", name: "Rusan — Именные подарки", industry: "Подарки и сувениры", about: "Именные подарки, памятные сувениры и особые случаи.", website: "", logo: "" },
+    { id: "cl_rich_burger", name: "Rich Burger", industry: "Бургерная", about: "Rich Burger и Pizza T-Bone, Самарканд, ул. Рудаки 139.", website: "", logo: "" },
+    { id: "cl_shirin_tabaka", name: "Shirin Tabaka", industry: "Куриный фастфуд", about: "Там, где курочка готовится с любовью. Доставка по всему городу.", website: "", logo: "" },
+    { id: "cl_ipak_yoli", name: "Ipak Yo'li Supermarket", industry: "Супермаркет", about: "Супермаркет — покупки с комфортом и стилем.", website: "", logo: "" },
   ],
   works: [
     {
-      id: "work_fastbite_rebrand",
-      title: "Фирменные крафт-пакеты для FastBite",
-      date: "2026-01-12",
-      clientId: "cl_fastbite",
-      categoryId: "cat_handles",
-      challenge:
-        "Старый пакет терял цвет после печати, а логотип выглядел тускло на крафтовой основе.",
-      solution:
-        "Переработали композицию логотипа, усилили контраст и подобрали бумагу 100 г/м2 с кручеными ручками.",
-      result: "Рост узнаваемости бренда в доставке и снижение брака на 28%.",
-      image: photo("work-fastbite"),
+      id: "work_chicken_eleven",
+      title: "Белый пакет для Chicken Eleven",
+      date: "2025-07-04",
+      clientId: "cl_chicken_eleven",
+      categoryId: "cat_nohandle",
+      challenge: "Сохранить атмосферу бренда даже вне ресторана — на вынос и в доставке.",
+      solution: "Белый крафт без ручек 24×15×32 см (ширина × боковая × высота), чёткий зелёный логотип, адреса и телефоны точек на лицевой стороне.",
+      result: "Каждая деталь важна, если вы заботитесь о подаче. Упаковка, которая работает на имидж.",
+      image: photo("chicken-eleven"),
     },
     {
-      id: "work_lavashcity_pattern",
-      title: "Паттерн-пергамент для Lavash City",
-      date: "2025-12-03",
-      clientId: "cl_lavashcity",
-      categoryId: "cat_paper",
-      challenge:
-        "Нужно было совместить эстетичный паттерн и заметные контакты доставки на обертке.",
-      solution:
-        "Сделали двухуровневую графику: мелкий паттерн + акцентные контактные блоки.",
-      result: "Рост повторных заказов упаковки и сильный визуальный эффект в соцсетях.",
-      image: photo("work-lavash"),
+      id: "work_orexoviy_sad",
+      title: "Белый крафт для «Орехового Сада»",
+      date: "2025-07-14",
+      clientId: "cl_orexoviy_sad",
+      categoryId: "cat_white",
+      challenge: "Универсальный пакет и для повседневных покупок, и для подарочной подачи сухофруктов.",
+      solution: "Белый крафт с кручеными ручками 22×12×30 см, монохромная печать логотипа и Instagram-аккаунта.",
+      result: "Когда упаковка говорит за бренд — достаточно просто держать её в руках.",
+      image: photo("orexoviy-sad"),
+    },
+    {
+      id: "work_bellis",
+      title: "Пакеты для Beliss Premium Restaurant",
+      date: "2025-07-31",
+      clientId: "cl_bellis",
+      categoryId: "cat_white",
+      challenge: "Вместительный пакет, который выглядит премиально и в доставке, и при подаче на месте.",
+      solution: "Крафт с кручеными ручками 30×18×31 см, растительный орнамент и логотип на лицевой стороне.",
+      result: "Когда упаковка отражает уровень ресторана — она становится частью впечатления.",
+      image: photo("bellis"),
+    },
+    {
+      id: "work_anastasiya",
+      title: "Пакеты для цветочного магазина «Анастасия»",
+      date: "2025-07-31",
+      clientId: "cl_anastasiya",
+      categoryId: "cat_twisted",
+      challenge: "Лёгкий и аккуратный пакет для нежных букетов и подарков.",
+      solution: "Крафт с кручеными ручками 18×11×23 см в двух цветах — зелёный и белый — с логотипом и QR-кодом.",
+      result: "Когда упаковка гармонирует с цветами — она делает момент особенным.",
+      image: photo("anastasiya"),
+    },
+    {
+      id: "work_bbq_burger",
+      title: "Полноцветный пакет для BBQ Burger",
+      date: "2025-07-31",
+      clientId: "cl_bbq_burger",
+      categoryId: "cat_nohandle",
+      challenge: "Яркий пакет с фирменным логотипом для доставки бургеров и сетов.",
+      solution: "Пакет без ручек 27×15×30 см, бордовая заливка по всей поверхности, паттерн на боковинах, QR-код и телефон.",
+      result: "Когда упаковка поддерживает вкус — бренд звучит громче.",
+      image: photo("bbq-burger"),
+    },
+    {
+      id: "work_du_chinor",
+      title: "Пакеты для Du Chinor Korean Restaurant",
+      date: "2025-07-31",
+      clientId: "cl_du_chinor",
+      categoryId: "cat_twisted",
+      challenge: "Вместительный пакет для больших заказов, сетов и фирменных блюд корейской кухни.",
+      solution: "Натуральный крафт с кручеными ручками 30×15×40 см, логотип, адреса ресторанов и телефоны.",
+      result: "Когда упаковка отражает вкус кухни — бренд звучит сильнее.",
+      image: photo("du-chinor"),
+    },
+    {
+      id: "work_rusan",
+      title: "Пакеты для Rusan — Именные подарки",
+      date: "2025-07-31",
+      clientId: "cl_rusan",
+      categoryId: "cat_white",
+      challenge: "Стильная упаковка для подарков, памятных сувениров и особых случаев.",
+      solution: "Белый крафт с кручеными ручками 32×12×42 см, синий логотип на лицевой стороне.",
+      result: "Когда упаковка подчёркивает ценность — момент становится незабываемым.",
+      image: photo("rusan"),
+    },
+    {
+      id: "work_rich_burger",
+      title: "Пакеты для Rich Burger",
+      date: "2025-07-31",
+      clientId: "cl_rich_burger",
+      categoryId: "cat_nohandle",
+      challenge: "Надёжный и вместительный пакет под бургеры, картошку и напитки.",
+      solution: "Крафт без ручек 24×15×32 см, печать логотипов Rich Burger и Pizza T-Bone, телефонов и адреса.",
+      result: "Когда даже упаковка говорит: «Это вкусно!»",
+      image: photo("rich-burger"),
+    },
+    {
+      id: "work_shirin_tabaka",
+      title: "Пакеты для Shirin Tabaka",
+      date: "2025-07-31",
+      clientId: "cl_shirin_tabaka",
+      categoryId: "cat_twisted",
+      challenge: "Упаковка для горячих заказов с доставкой по всему городу.",
+      solution: "Натуральный крафт с кручеными ручками 30×18×31 см, логотип, телефоны и адрес доставки.",
+      result: "Вместительный, прочный и стильный — для горячих заказов и тёплых эмоций.",
+      image: photo("shirin-tabaka"),
+    },
+    {
+      id: "work_ipak_yoli",
+      title: "Фирменный пакет для Ipak Yo'li Supermarket",
+      date: "2025-08-16",
+      clientId: "cl_ipak_yoli",
+      categoryId: "cat_nohandle",
+      challenge: "Удобный и прочный спутник для каждой покупки в супермаркете.",
+      solution: "Крафт без ручек 18×10×27 см, белая печать логотипа.",
+      result: "Практичный и экологичный — легко выдерживает всё необходимое.",
+      image: photo("ipak-yoli"),
     },
   ],
-};
-
-
-/* Заглушки настроек из прежних версий → текущие. Работает так же, как
-   replacedImages: подменяется только значение, совпадающее со старой
-   заглушкой, введённое в админке остаётся. */
-export const replacedSettings = {
-  address: { "Ташкент, Юнусабадский район": "Самарканд" },
-};
-
-/* Фото из прежних версий сайта → текущие. Состояние живёт в localStorage,
-   поэтому у тех, кто уже открывал сайт, defaultState не перечитывается —
-   подменяем картинки при загрузке (см. migrateImage в StoreContext). */
-export const replacedImages = {
-  "https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&w=1200&q=80":
-    photo("cat-handles"),
-  "https://images.pexels.com/photos/11348561/pexels-photo-11348561.jpeg?auto=compress&cs=tinysrgb&w=1200":
-    photo("cat-handles"),
-  "https://images.unsplash.com/photo-1572584642822-6f8de0243c93?auto=format&fit=crop&w=1200&q=80":
-    photo("cat-no-handles"),
-  "https://images.pexels.com/photos/30275065/pexels-photo-30275065.jpeg?auto=compress&cs=tinysrgb&w=1200":
-    photo("cat-no-handles"),
-  "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=80":
-    photo("cat-fastfood"),
-  "https://images.pexels.com/photos/8228281/pexels-photo-8228281.jpeg?auto=compress&cs=tinysrgb&w=1200":
-    photo("cat-fastfood"),
-  "https://images.unsplash.com/photo-1585222381486-1a5d6ddf8b35?auto=format&fit=crop&w=1200&q=80":
-    photo("cat-paper"),
-  "https://images.pexels.com/photos/34454884/pexels-photo-34454884.jpeg?auto=compress&cs=tinysrgb&w=1200":
-    photo("cat-paper"),
-  "https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&w=1400&q=80":
-    photo("bag-twisted"),
-  "https://images.pexels.com/photos/1666067/pexels-photo-1666067.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("bag-twisted"),
-  "https://images.unsplash.com/photo-1572584642822-6f8de0243c93?auto=format&fit=crop&w=1400&q=80":
-    photo("bag-flat-handle"),
-  "https://images.pexels.com/photos/9878724/pexels-photo-9878724.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("bag-flat-handle"),
-  "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=1400&q=80":
-    photo("bag-bottom"),
-  "https://images.pexels.com/photos/32553577/pexels-photo-32553577.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("bag-bottom"),
-  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1400&q=80":
-    photo("bag-burger"),
-  "https://images.pexels.com/photos/7497214/pexels-photo-7497214.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("bag-burger"),
-  "https://images.unsplash.com/photo-1518013431117-eb1465fa5752?auto=format&fit=crop&w=1400&q=80":
-    photo("bag-fries"),
-  "https://images.pexels.com/photos/4109273/pexels-photo-4109273.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("bag-fries"),
-  "https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&w=1400&q=80":
-    photo("paper-wrap"),
-  "https://images.pexels.com/photos/27668714/pexels-photo-27668714.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("paper-wrap"),
-  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=80":
-    photo("news-line"),
-  "https://images.pexels.com/photos/34221997/pexels-photo-34221997.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("news-line"),
-  "https://images.unsplash.com/photo-1524758870432-af57e54afa26?auto=format&fit=crop&w=1400&q=80":
-    photo("news-showroom"),
-  "https://images.pexels.com/photos/9218540/pexels-photo-9218540.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("news-showroom"),
-  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80":
-    photo("post-branding"),
-  "https://images.pexels.com/photos/15753263/pexels-photo-15753263.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("post-branding"),
-  "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1400&q=80":
-    photo("post-cost"),
-  "https://images.pexels.com/photos/32166686/pexels-photo-32166686.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("post-cost"),
-  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1400&q=80":
-    photo("work-fastbite"),
-  "https://images.pexels.com/photos/11462924/pexels-photo-11462924.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("work-fastbite"),
-  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1400&q=80":
-    photo("work-lavash"),
-  "https://images.pexels.com/photos/18330008/pexels-photo-18330008.jpeg?auto=compress&cs=tinysrgb&w=1400":
-    photo("work-lavash"),
 };

@@ -59,15 +59,29 @@ export function ProductDetailPage() {
         <div className="two-col section">
           <Reveal as="aside" className="sidebar-card" delay={80}>
             <h3>Связаться по заказу</h3>
-            <p>
-              <strong>Телефон:</strong> {settings.phone || "-"}
-            </p>
-            <p>
-              <strong>Email:</strong> {settings.email || "-"}
-            </p>
-            <p>
-              <strong>Telegram:</strong> {settings.telegram || "-"}
-            </p>
+            {settings.phone ? (
+              <p>
+                <strong>Телефон:</strong> {settings.phone}
+              </p>
+            ) : null}
+            {settings.email ? (
+              <p>
+                <strong>Email:</strong> {settings.email}
+              </p>
+            ) : null}
+            {settings.telegram ? (
+              <p>
+                <strong>Telegram:</strong>{" "}
+                <a href={`https://t.me/${String(settings.telegram).replace(/^@/, "")}`} target="_blank" rel="noreferrer">
+                  {settings.telegram}
+                </a>
+              </p>
+            ) : null}
+            {settings.address ? (
+              <p>
+                <strong>Адрес:</strong> {settings.address}
+              </p>
+            ) : null}
             <Link className="btn" to="/constructor">
               Собрать мокап бренда
             </Link>

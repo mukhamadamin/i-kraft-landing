@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { defaultState, replacedImages, replacedSettings } from "./defaultData";
+import { dataVersion, defaultState } from "./defaultData";
 
 const STORAGE_KEY = "kraftvision.react.cms.v1";
 
@@ -37,27 +37,18 @@ function uid(prefix) {
   return `${prefix}_${Date.now()}_${random}`;
 }
 
-/* Старые заглушки-фото подменяем тематическими; картинки, которые
-   загрузили через админку, не трогаем. */
-function migrateImage(item) {
-  const next = item && replacedImages[item.image];
-  return next ? { ...item, image: next } : item;
-}
-
 /* Нормализация формы данных — вызывается только при загрузке,
    импорте и сбросе, а не на каждом изменении. */
 function ensureStateShape(raw) {
   const safe = raw && typeof raw === "object" ? deepClone(raw) : {};
   const base = deepClone(defaultState);
+  base.dataVersion = dataVersion;
 
   base.settings = { ...base.settings, ...(safe.settings || {}) };
-  Object.entries(replacedSettings).forEach(([key, map]) => {
-    if (map[base.settings[key]]) base.settings[key] = map[base.settings[key]];
-  });
 
   ["categories", "products", "news", "posts", "clients", "works"].forEach((key) => {
     if (Array.isArray(safe[key])) {
-      base[key] = safe[key].map(migrateImage);
+      base[key] = safe[key];
     }
   });
 
@@ -104,7 +95,11 @@ function readState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return ensureStateShape(defaultState);
-    return ensureStateShape(JSON.parse(raw));
+    const parsed = JSON.parse(raw);
+    /* Сохранённое состояние из прежней версии данных (другие товары,
+       клиенты, контакты) заменяем целиком — сливать его с новым нельзя. */
+    if (parsed?.dataVersion !== dataVersion) return ensureStateShape(defaultState);
+    return ensureStateShape(parsed);
   } catch (_error) {
     return ensureStateShape(defaultState);
   }

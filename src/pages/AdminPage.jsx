@@ -138,7 +138,7 @@ function AdminPanel({ onLogout }) {
 
   useEffect(() => {
     const previous = document.title;
-    document.title = "Панель управления — I-Kraft-Pack";
+    document.title = "Панель управления — I-Kraft Pack";
     return () => {
       document.title = previous;
     };
@@ -173,7 +173,9 @@ function AdminPanel({ onLogout }) {
           { name: "phone", label: "Телефон", type: "text" },
           { name: "email", label: "Email", type: "text" },
           { name: "address", label: "Адрес", type: "text" },
-          { name: "telegram", label: "Telegram", type: "text" },
+          { name: "telegram", label: "Telegram для заказов", type: "text" },
+          { name: "telegramChannel", label: "Telegram-канал", type: "text" },
+          { name: "instagram", label: "Instagram", type: "text" },
           { name: "whatsapp", label: "WhatsApp", type: "text" },
           { name: "heroTitle", label: "Заголовок на главной", type: "textarea" },
           { name: "heroSubtitle", label: "Подзаголовок на главной", type: "textarea" },
@@ -426,7 +428,7 @@ function AdminPanel({ onLogout }) {
           <div className="admin-brand">
             <img src={kraftLogo} alt="" className="admin-brand-logo" />
             <div>
-              <b>{state.settings.companyName || "I-Kraft-Pack"}</b>
+              <b>{state.settings.companyName || "I-Kraft Pack"}</b>
               <span>Панель управления</span>
             </div>
           </div>

@@ -80,7 +80,7 @@ export function Header() {
           <Link to="/" className="brand" onClick={() => setOpen(false)}>
             <img src={kraftLogo} alt="" className="brand-logo-img" />
             <span className="brand-stack">
-              <span className="brand-name">{settings.companyName || "I-Kraft-Pack"}</span>
+              <span className="brand-name">{settings.companyName || "I-Kraft Pack"}</span>
               <span className="brand-sub">{settings.slogan || "Производство крафтовых пакетов"}</span>
             </span>
           </Link>
