@@ -17,28 +17,28 @@ export const defaultState = {
       title: "Пакеты с ручками",
       slug: "pakety-s-ruchkami",
       description: "Крафт-пакеты с кручеными и плоскими ручками — витрина бренда на вынос.",
-      image: "https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&w=1200&q=80",
+      image: "https://images.pexels.com/photos/11348561/pexels-photo-11348561.jpeg?auto=compress&cs=tinysrgb&w=1200",
     },
     {
       id: "cat_flat",
       title: "Пакеты без ручек",
       slug: "pakety-bez-ruchek",
       description: "Пакеты с прямоугольным дном и саше — для выпечки, доставки и ритейла.",
-      image: "https://images.unsplash.com/photo-1572584642822-6f8de0243c93?auto=format&fit=crop&w=1200&q=80",
+      image: "https://images.pexels.com/photos/30275065/pexels-photo-30275065.jpeg?auto=compress&cs=tinysrgb&w=1200",
     },
     {
       id: "cat_fastfood",
       title: "Фастфуд-серия",
       slug: "fastfood",
       description: "Упаковка для бургеров, лаваша и фри: жиростойкие материалы и точная посадка.",
-      image: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=80",
+      image: "https://images.pexels.com/photos/8228281/pexels-photo-8228281.jpeg?auto=compress&cs=tinysrgb&w=1200",
     },
     {
       id: "cat_paper",
       title: "Пергамент и обёртка",
       slug: "pergament",
       description: "Пищевая бумага и пергамент с паттерн-печатью — дополнение к линейке пакетов.",
-      image: "https://images.unsplash.com/photo-1585222381486-1a5d6ddf8b35?auto=format&fit=crop&w=1200&q=80",
+      image: "https://images.pexels.com/photos/34454884/pexels-photo-34454884.jpeg?auto=compress&cs=tinysrgb&w=1200",
     },
   ],
   products: [
@@ -52,7 +52,7 @@ export const defaultState = {
       specs: "Размеры: 240x140x280 / 320x180x370 мм; Бумага: крафт 90-120 г/м2; Печать: до 3 цветов",
       minOrder: "От 2 000 шт",
       tags: "крафт-пакет, ручки, брендинг",
-      image: "https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/1666067/pexels-photo-1666067.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
     {
       id: "prd_bag_flat_handle",
@@ -64,7 +64,7 @@ export const defaultState = {
       specs: "Размеры: 220x120x250 / 280x150x320 мм; Бумага: крафт 80-100 г/м2; Печать: до 2 цветов",
       minOrder: "От 3 000 шт",
       tags: "крафт-пакет, эконом, сети",
-      image: "https://images.unsplash.com/photo-1572584642822-6f8de0243c93?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/9878724/pexels-photo-9878724.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
     {
       id: "prd_bag_bottom",
@@ -76,7 +76,7 @@ export const defaultState = {
       specs: "Размеры: 170x100x260 / 200x120x290 мм; Бумага: крафт 70-90 г/м2; Печать: 1-2 цвета",
       minOrder: "От 5 000 шт",
       tags: "без ручек, выпечка, кофейня",
-      image: "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/32553577/pexels-photo-32553577.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
     {
       id: "prd_bag_burger",
@@ -88,7 +88,7 @@ export const defaultState = {
       specs: "Размер: 16x18 см; Материал: крафт 80 г/м2 + барьер; Печать: 1-3 цвета",
       minOrder: "От 3 000 шт",
       tags: "burger, take-away, фастфуд",
-      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/7497214/pexels-photo-7497214.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
     {
       id: "prd_bag_fries",
@@ -100,7 +100,7 @@ export const defaultState = {
       specs: "Размер: 9x15 см; Материал: крафт 70 г/м2; Печать: 1-2 цвета",
       minOrder: "От 4 000 шт",
       tags: "fries, delivery",
-      image: "https://images.unsplash.com/photo-1518013431117-eb1465fa5752?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/4109273/pexels-photo-4109273.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
     {
       id: "prd_paper_01",
@@ -112,7 +112,7 @@ export const defaultState = {
       specs: "Размер: 30x30 см; Материал: пищевой пергамент; Печать: до 2 цветов",
       minOrder: "От 10 кг",
       tags: "пергамент, обертка, бренд",
-      image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/27668714/pexels-photo-27668714.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
   ],
   news: [
@@ -123,7 +123,7 @@ export const defaultState = {
       excerpt: "Мощность выросла до 50 000 пакетов в смену, улучшена точность вклейки ручек.",
       content:
         "Мы ввели в работу новую автоматическую линию по производству крафт-пакетов с кручеными ручками.\nТеперь мы быстрее обрабатываем крупные заказы сетей и точнее передаём фирменные цвета бренда при печати.\nДля клиентов это означает меньше итераций на согласование и более короткий цикл от макета до поставки.",
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/34221997/pexels-photo-34221997.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
     {
       id: "news_2026_02",
@@ -132,7 +132,7 @@ export const defaultState = {
       excerpt: "Можно подержать в руках все форматы пакетов и сравнить бумагу перед запуском тиража.",
       content:
         "В шоуруме представлены пакеты с ручками и без, фастфуд-серия и пергамент в разных форматах.\nКоманда помогает подобрать плотность бумаги, размер и тип печати под вашу задачу.\nЗапись на встречу доступна по телефону и в Telegram.",
-      image: "https://images.unsplash.com/photo-1524758870432-af57e54afa26?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/9218540/pexels-photo-9218540.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
   ],
   posts: [
@@ -145,7 +145,7 @@ export const defaultState = {
       excerpt: "Практический разбор композиции логотипа, контраста и читаемости на крафте.",
       content:
         "Брендированный пакет давно стал частью контента.\nЧтобы бренд замечали, важно не только поставить логотип, но и правильно расположить его на лицевой стороне пакета.\nИспользуйте контрастные цвета, оставляйте воздух вокруг знака и проверяйте читаемость с расстояния 1-1.5 метра.\nДля крафтовой бумаги лучше всего работают тёмные насыщенные цвета и белая печать.",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/15753263/pexels-photo-15753263.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
     {
       id: "post_cost_control",
@@ -156,7 +156,7 @@ export const defaultState = {
       excerpt: "Оптимизация размеров, плотности бумаги и тиражей для кафе и сетей доставки.",
       content:
         "Экономия начинается с правильного техзадания.\nЕсли стандартизировать 2-3 размера пакета и заранее планировать тираж, можно существенно снизить стоимость единицы.\nВыбирайте плоские ручки вместо кручёных там, где нагрузка небольшая, и оптимальную плотность бумаги под конкретный продукт.\nРекомендуем регулярно пересматривать упаковочную матрицу вместе с производителем.",
-      image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/32166686/pexels-photo-32166686.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
   ],
   clients: [
@@ -197,7 +197,7 @@ export const defaultState = {
       solution:
         "Переработали композицию логотипа, усилили контраст и подобрали бумагу 100 г/м2 с кручеными ручками.",
       result: "Рост узнаваемости бренда в доставке и снижение брака на 28%.",
-      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/11462924/pexels-photo-11462924.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
     {
       id: "work_lavashcity_pattern",
@@ -210,7 +210,45 @@ export const defaultState = {
       solution:
         "Сделали двухуровневую графику: мелкий паттерн + акцентные контактные блоки.",
       result: "Рост повторных заказов упаковки и сильный визуальный эффект в соцсетях.",
-      image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1400&q=80",
+      image: "https://images.pexels.com/photos/18330008/pexels-photo-18330008.jpeg?auto=compress&cs=tinysrgb&w=1400",
     },
   ],
+};
+
+/* Старые случайные фото из первых версий сайта → тематические.
+   Состояние живёт в localStorage, поэтому у тех, кто уже открывал сайт,
+   defaultState не перечитывается — подменяем картинки при загрузке. */
+export const replacedImages = {
+  "https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&w=1200&q=80":
+    "https://images.pexels.com/photos/11348561/pexels-photo-11348561.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  "https://images.unsplash.com/photo-1572584642822-6f8de0243c93?auto=format&fit=crop&w=1200&q=80":
+    "https://images.pexels.com/photos/30275065/pexels-photo-30275065.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=80":
+    "https://images.pexels.com/photos/8228281/pexels-photo-8228281.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  "https://images.unsplash.com/photo-1585222381486-1a5d6ddf8b35?auto=format&fit=crop&w=1200&q=80":
+    "https://images.pexels.com/photos/34454884/pexels-photo-34454884.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  "https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/1666067/pexels-photo-1666067.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1572584642822-6f8de0243c93?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/9878724/pexels-photo-9878724.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/32553577/pexels-photo-32553577.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/7497214/pexels-photo-7497214.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1518013431117-eb1465fa5752?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/4109273/pexels-photo-4109273.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/27668714/pexels-photo-27668714.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/34221997/pexels-photo-34221997.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1524758870432-af57e54afa26?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/9218540/pexels-photo-9218540.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/15753263/pexels-photo-15753263.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/32166686/pexels-photo-32166686.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/11462924/pexels-photo-11462924.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1400&q=80":
+    "https://images.pexels.com/photos/18330008/pexels-photo-18330008.jpeg?auto=compress&cs=tinysrgb&w=1400",
 };

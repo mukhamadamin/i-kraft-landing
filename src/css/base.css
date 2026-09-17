@@ -196,8 +196,7 @@
 }
 
 /* Клиентские логотипы: на светлом их гасим прозрачностью, а не яркостью */
-:root[data-theme="light"] .client-logo-img,
-:root[data-theme="light"] .marquee-logo-img {
+:root[data-theme="light"] .client-logo-img {
   filter: grayscale(1) contrast(1.1);
   opacity: 0.65;
 }

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { defaultState } from "./defaultData";
+import { defaultState, replacedImages } from "./defaultData";
 
 const STORAGE_KEY = "kraftvision.react.cms.v1";
 
@@ -37,6 +37,13 @@ function uid(prefix) {
   return `${prefix}_${Date.now()}_${random}`;
 }
 
+/* Старые заглушки-фото подменяем тематическими; картинки, которые
+   загрузили через админку, не трогаем. */
+function migrateImage(item) {
+  const next = item && replacedImages[item.image];
+  return next ? { ...item, image: next } : item;
+}
+
 /* Нормализация формы данных — вызывается только при загрузке,
    импорте и сбросе, а не на каждом изменении. */
 function ensureStateShape(raw) {
@@ -47,7 +54,7 @@ function ensureStateShape(raw) {
 
   ["categories", "products", "news", "posts", "clients", "works"].forEach((key) => {
     if (Array.isArray(safe[key])) {
-      base[key] = safe[key];
+      base[key] = safe[key].map(migrateImage);
     }
   });
 

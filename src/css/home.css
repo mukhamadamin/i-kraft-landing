@@ -1084,65 +1084,6 @@
   margin-top: 1rem;
 }
 
-/* ─── ПАРТНЁРЫ ────────────────────────────────────────────────── */
-
-.partners-section {
-  padding: 3rem 0 4rem;
-}
-
-.marquee-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.85rem;
-  margin: 0 0.6rem;
-  padding: 0.9rem 1.6rem;
-  border-radius: var(--r-full);
-  border: 1px solid var(--line);
-  background: var(--glass);
-  white-space: nowrap;
-  transition:
-    border-color 0.35s ease,
-    background 0.35s ease,
-    transform 0.35s var(--ease-spring);
-}
-
-.marquee-item:hover {
-  border-color: var(--kraft);
-  background: rgba(217, 168, 108, 0.08);
-  transform: translateY(-3px);
-}
-
-.marquee-logo-img {
-  height: 30px;
-  width: auto;
-  object-fit: contain;
-  filter: grayscale(1) brightness(1.6);
-}
-
-.marquee-logo-badge {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--grad-kraft);
-  color: #2a1a06;
-  font-size: 0.95rem;
-  font-weight: 850;
-  flex-shrink: 0;
-}
-
-.marquee-item-name {
-  font-size: 0.95rem;
-  font-weight: 720;
-  letter-spacing: -0.015em;
-  color: var(--paper-dim);
-}
-
-.marquee-item:hover .marquee-item-name {
-  color: var(--paper);
-}
-
 /* ─── ПОЛОСА ЦИФР ─────────────────────────────────────────────── */
 
 .stats-band {

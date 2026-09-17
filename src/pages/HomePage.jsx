@@ -195,39 +195,6 @@ const faqItems = [
   },
 ];
 
-/* ─── Ленты партнёров ─────────────────────────────────────────── */
-
-function PartnersMarquee({ clients }) {
-  if (!clients.length) return null;
-
-  const row = (items) =>
-    items.map((item, i) => (
-      <div className="marquee-item" key={`${item.id}-${i}`}>
-        {item.logo ? (
-          <img src={item.logo} alt={item.name} className="marquee-logo-img" />
-        ) : (
-          <span className="marquee-logo-badge">{item.name.charAt(0)}</span>
-        )}
-        <span className="marquee-item-name">{item.name}</span>
-      </div>
-    ));
-
-  const doubled = [...clients, ...clients, ...clients];
-
-  return (
-    <section className="partners-section container">
-      <SectionHead eyebrow="Партнёры" title="Нам доверяют упаковку бренда" />
-      <Reveal variant="fade">
-        <Marquee speed={34}>{row(doubled)}</Marquee>
-        <div style={{ height: "0.9rem" }} />
-        <Marquee speed={44} reverse>
-          {row([...doubled].reverse())}
-        </Marquee>
-      </Reveal>
-    </section>
-  );
-}
-
 /* ─── Процесс производства ────────────────────────────────────── */
 
 function ProcessSection() {
@@ -447,8 +414,6 @@ export function HomePage() {
           ))}
         </Marquee>
       </div>
-
-      <PartnersMarquee clients={clients} />
 
       {/* ═══ БЕНТО ═══ */}
       <section className="section container">
