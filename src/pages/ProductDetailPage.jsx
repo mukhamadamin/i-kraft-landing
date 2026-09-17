@@ -16,6 +16,11 @@ export function ProductDetailPage() {
     return (
       <section className="container section">
         <EmptyState text="Продукт не найден." />
+        <p style={{ textAlign: "center", marginTop: "1.2rem" }}>
+          <Link className="btn btn-secondary" to="/catalog">
+            В каталог
+          </Link>
+        </p>
       </section>
     );
   }

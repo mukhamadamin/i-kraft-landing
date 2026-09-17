@@ -16,6 +16,11 @@ export function WorkDetailPage() {
     return (
       <section className="container section">
         <EmptyState text="Кейс не найден." />
+        <p style={{ textAlign: "center", marginTop: "1.2rem" }}>
+          <Link className="btn btn-secondary" to="/works">
+            К нашим работам
+          </Link>
+        </p>
       </section>
     );
   }

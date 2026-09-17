@@ -284,12 +284,22 @@ function FaqSection() {
   );
 }
 
+/* «250+» из настроек → число для анимированного счётчика и суффикс */
+function parseStat(value, fallback) {
+  const match = String(value ?? "").match(/(\d[\d\s]*)(.*)/);
+  if (!match) return { to: fallback, suffix: "" };
+  return { to: Number(match[1].replace(/\s/g, "")), suffix: match[2].trim() };
+}
+
 /* ─── Главная ─────────────────────────────────────────────────── */
 
 export function HomePage() {
   const {
     state: { settings, categories, products, news, clients, works },
   } = useStore();
+
+  const statClients = parseStat(settings.statClients, clients.length);
+  const statWorks = parseStat(settings.statWorks, works.length);
 
   const categoryMap = Object.fromEntries(categories.map((item) => [item.id, item.title]));
   const clientMap = Object.fromEntries(clients.map((item) => [item.id, item.name]));
@@ -357,7 +367,7 @@ export function HomePage() {
                 <IconUsers />
               </span>
               <b>
-                <Counter to={clients.length} />
+                <Counter to={statClients.to} suffix={statClients.suffix} />
               </b>
               <span>Клиентов</span>
             </div>
@@ -366,7 +376,7 @@ export function HomePage() {
                 <IconAward />
               </span>
               <b>
-                <Counter to={works.length} />
+                <Counter to={statWorks.to} suffix={statWorks.suffix} />
               </b>
               <span>Кейсов</span>
             </div>
@@ -434,7 +444,7 @@ export function HomePage() {
             </p>
             <div className="bento-metric">
               <b>
-                <Counter to={works.length} />
+                <Counter to={statClients.to} suffix={statClients.suffix} />
               </b>
               <span>брендов уже с нашими пакетами</span>
             </div>
@@ -527,31 +537,31 @@ export function HomePage() {
         <Reveal variant="zoom" className="stats-band">
           <div className="stat-cell">
             <b>
-              <Counter to={50} suffix="k" />
+              <Counter to={statClients.to} suffix={statClients.suffix} />
             </b>
-            <strong>Пакетов в смену</strong>
-            <span>Мощность после запуска новой линии</span>
+            <strong>Клиентов</strong>
+            <span>Рестораны, магазины, доставка и подарки</span>
           </div>
           <div className="stat-cell">
             <b>
-              <Counter to={28} suffix="%" />
+              <Counter to={statWorks.to} suffix={statWorks.suffix} />
             </b>
-            <strong>Снижение брака</strong>
-            <span>После перехода на укреплённое дно</span>
+            <strong>Кейсов</strong>
+            <span>Пакетов с логотипом, которые уже в руках покупателей</span>
           </div>
           <div className="stat-cell">
             <b>
-              <Counter to={7} suffix="–14" />
+              <Counter to={8} suffix="+" />
             </b>
-            <strong>Дней на тираж</strong>
-            <span>От утверждения цветопробы до отгрузки</span>
+            <strong>Размеров</strong>
+            <span>От 18×10×27 до 32×12×42 см и под заказ</span>
           </div>
           <div className="stat-cell">
             <b>
-              <Counter to={3} />
+              <Counter to={14} />
             </b>
-            <strong>Цвета печати</strong>
-            <span>Флексопечать по всей плоскости пакета</span>
+            <strong>Регионов</strong>
+            <span>Доставка по всему Узбекистану</span>
           </div>
         </Reveal>
       </section>

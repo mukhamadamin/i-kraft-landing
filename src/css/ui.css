@@ -379,6 +379,11 @@ a.chip:hover,
   filter: saturate(1.05) contrast(1.02);
 }
 
+:root[data-theme="light"] .card-media img,
+:root[data-theme="light"] .card:hover .card-media img {
+  filter: none;
+}
+
 .image-fallback {
   width: 100%;
   height: 100%;
@@ -876,5 +881,39 @@ a.chip:hover,
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* ─── МОБИЛЬНЫЕ РАЗМЕРЫ ТЕКСТА ────────────────────────────────── */
+/* На узком экране плашки-подписи и заголовки заметно крупнее, чем нужно:
+   уменьшаем их, не трогая десктоп. */
+@media (max-width: 560px) {
+  .eyebrow {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    padding: 0.28rem 0.7rem 0.28rem 0.56rem;
+  }
+
+  .eyebrow::before {
+    width: 5px;
+    height: 5px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.05rem, 9.6vw, 2.6rem);
+  }
+
+  .hero-lead,
+  .page-head > p,
+  .section-head p {
+    font-size: 0.95rem;
+  }
+
+  .section-head h2 {
+    font-size: clamp(1.55rem, 7.4vw, 1.9rem);
+  }
+
+  .page-head h1 {
+    font-size: clamp(1.85rem, 8.8vw, 2.3rem);
   }
 }

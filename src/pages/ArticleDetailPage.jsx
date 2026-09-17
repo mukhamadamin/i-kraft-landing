@@ -17,6 +17,11 @@ export function ArticleDetailPage() {
     return (
       <section className="container section">
         <EmptyState text="Материал не найден." />
+        <p style={{ textAlign: "center", marginTop: "1.2rem" }}>
+          <Link className="btn btn-secondary" to="/news">
+            К новостям
+          </Link>
+        </p>
       </section>
     );
   }

@@ -177,6 +177,8 @@ function AdminPanel({ onLogout }) {
           { name: "telegramChannel", label: "Telegram-канал", type: "text" },
           { name: "instagram", label: "Instagram", type: "text" },
           { name: "whatsapp", label: "WhatsApp", type: "text" },
+          { name: "statClients", label: "Клиентов (цифра на главной)", type: "text" },
+          { name: "statWorks", label: "Кейсов (цифра на главной)", type: "text" },
           { name: "heroTitle", label: "Заголовок на главной", type: "textarea" },
           { name: "heroSubtitle", label: "Подзаголовок на главной", type: "textarea" },
         ],
