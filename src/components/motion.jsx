@@ -14,6 +14,28 @@ export const coarsePointer = () => isBrowser && window.matchMedia("(pointer: coa
 
 const lerp = (from, to, amount) => from + (to - from) * amount;
 
+/* Цикл rAF, который живёт только пока есть что догонять. Постоянные
+   60 fps-циклы «на всякий случай» — главный источник тормозов: их было
+   по одному на курсор, атмосферу и каждую магнитную кнопку. */
+function createSettleLoop(step) {
+  let frame = 0;
+
+  const tick = () => {
+    frame = 0;
+    if (step()) frame = requestAnimationFrame(tick);
+  };
+
+  return {
+    start() {
+      if (!frame) frame = requestAnimationFrame(tick);
+    },
+    stop() {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+    },
+  };
+}
+
 /* ─── Наблюдение за попаданием во вьюпорт ─────────────────────── */
 
 export function useInView({ threshold = 0.14, rootMargin = "0px 0px -8% 0px", once = true } = {}) {
@@ -136,36 +158,44 @@ export function Magnetic({ children, strength = 0.32, as = "span", className = "
     const node = ref.current;
     if (!node || reducedMotion() || coarsePointer()) return undefined;
 
-    let frame = 0;
     let targetX = 0;
     let targetY = 0;
     let currentX = 0;
     let currentY = 0;
 
-    const tick = () => {
-      currentX = lerp(currentX, targetX, 0.16);
-      currentY = lerp(currentY, targetY, 0.16);
-      node.style.transform = `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0)`;
-      frame = requestAnimationFrame(tick);
-    };
+    const loop = createSettleLoop(() => {
+      currentX = lerp(currentX, targetX, 0.18);
+      currentY = lerp(currentY, targetY, 0.18);
+      const settled = Math.abs(currentX - targetX) < 0.05 && Math.abs(currentY - targetY) < 0.05;
+      if (settled) {
+        currentX = targetX;
+        currentY = targetY;
+      }
+      node.style.transform =
+        currentX === 0 && currentY === 0
+          ? ""
+          : `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0)`;
+      return !settled;
+    });
 
     const onMove = (event) => {
       const rect = node.getBoundingClientRect();
       targetX = (event.clientX - (rect.left + rect.width / 2)) * strength;
       targetY = (event.clientY - (rect.top + rect.height / 2)) * strength;
+      loop.start();
     };
 
     const onLeave = () => {
       targetX = 0;
       targetY = 0;
+      loop.start();
     };
 
     node.addEventListener("pointermove", onMove);
     node.addEventListener("pointerleave", onLeave);
-    frame = requestAnimationFrame(tick);
 
     return () => {
-      cancelAnimationFrame(frame);
+      loop.stop();
       node.removeEventListener("pointermove", onMove);
       node.removeEventListener("pointerleave", onLeave);
     };
@@ -235,12 +265,24 @@ export function Tilt({
 
 export function Counter({ to = 0, duration = 1500, decimals = 0, prefix = "", suffix = "" }) {
   const [ref, inView] = useInView({ threshold: 0.3, rootMargin: "0px" });
-  const [value, setValue] = useState(0);
+  const valueRef = useRef(null);
 
+  const format = useCallback(
+    (value) =>
+      value.toLocaleString("ru-RU", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      }),
+    [decimals],
+  );
+
+  /* Число пишем прямо в DOM: setState на каждый кадр перерисовывал бы
+     весь блок статистики 60 раз в секунду для каждого счётчика. */
   useEffect(() => {
-    if (!inView) return undefined;
+    const node = valueRef.current;
+    if (!inView || !node) return undefined;
     if (reducedMotion()) {
-      setValue(to);
+      node.textContent = format(to);
       return undefined;
     }
 
@@ -250,21 +292,18 @@ export function Counter({ to = 0, duration = 1500, decimals = 0, prefix = "", su
     const tick = (now) => {
       const progress = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 4);
-      setValue(to * eased);
+      node.textContent = format(to * eased);
       if (progress < 1) frame = requestAnimationFrame(tick);
     };
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [inView, to, duration]);
+  }, [inView, to, duration, format]);
 
   return (
     <span ref={ref} className="counter">
       {prefix}
-      {value.toLocaleString("ru-RU", {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals,
-      })}
+      <span ref={valueRef}>{format(0)}</span>
       {suffix}
     </span>
   );
@@ -336,9 +375,9 @@ export function Parallax({ as = "div", speed = 0.12, className = "", style, chil
 
 /* ─── Прогресс скролла внутри секции (для таймлайна) ──────────── */
 
-export function useSectionProgress() {
+export function useSectionProgress(steps = 1) {
   const ref = useRef(null);
-  const [progress, setProgress] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const node = ref.current;
@@ -347,14 +386,18 @@ export function useSectionProgress() {
     let frame = 0;
     let pending = false;
 
-    /* 0 — верх блока опустился до 70% экрана, 1 — низ поднялся до 40% */
+    /* 0 — верх блока опустился до 70% экрана, 1 — низ поднялся до 40%.
+       Дробный прогресс уходит в CSS-переменную без ререндера; React
+       узнаёт только о смене активного шага. */
     const update = () => {
       pending = false;
       const rect = node.getBoundingClientRect();
       const vh = window.innerHeight;
       const travelled = vh * 0.7 - rect.top;
       const total = Math.max(rect.height - vh * 0.3, 1);
-      setProgress(Math.min(Math.max(travelled / total, 0), 1));
+      const progress = Math.min(Math.max(travelled / total, 0), 1);
+      node.style.setProperty("--progress", progress.toFixed(4));
+      setActiveIndex(Math.min(steps - 1, Math.floor(progress * steps + 0.0001)));
     };
 
     const onScroll = () => {
@@ -372,9 +415,9 @@ export function useSectionProgress() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [steps]);
 
-  return [ref, progress];
+  return [ref, activeIndex];
 }
 
 /* ─── Полоса прогресса чтения страницы ────────────────────────── */
@@ -430,29 +473,40 @@ export function Cursor() {
 
     document.body.classList.add("has-custom-cursor");
 
-    let frame = 0;
     let pointerX = window.innerWidth / 2;
     let pointerY = window.innerHeight / 2;
     let ringX = pointerX;
     let ringY = pointerY;
+    let activeTarget = null;
 
-    const tick = () => {
-      ringX = lerp(ringX, pointerX, 0.16);
-      ringY = lerp(ringY, pointerY, 0.16);
-      dot.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0) translate(-50%, -50%)`;
-      ring.style.transform = `translate3d(${ringX.toFixed(2)}px, ${ringY.toFixed(2)}px, 0) translate(-50%, -50%)`;
-      frame = requestAnimationFrame(tick);
-    };
+    /* Кольцо догоняет точку и цикл останавливается, как только догнало */
+    const loop = createSettleLoop(() => {
+      ringX = lerp(ringX, pointerX, 0.2);
+      ringY = lerp(ringY, pointerY, 0.2);
+      const settled = Math.abs(ringX - pointerX) < 0.3 && Math.abs(ringY - pointerY) < 0.3;
+      if (settled) {
+        ringX = pointerX;
+        ringY = pointerY;
+      }
+      ring.style.transform = `translate3d(${ringX.toFixed(1)}px, ${ringY.toFixed(1)}px, 0) translate(-50%, -50%)`;
+      return !settled;
+    });
 
     const onMove = (event) => {
       pointerX = event.clientX;
       pointerY = event.clientY;
-      ring.classList.add("is-visible");
-      dot.classList.add("is-visible");
+      dot.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0) translate(-50%, -50%)`;
+      if (!dot.classList.contains("is-visible")) {
+        ring.classList.add("is-visible");
+        dot.classList.add("is-visible");
+      }
+      loop.start();
     };
 
     const onOver = (event) => {
       const interactive = event.target.closest?.("a, button, input, textarea, select, [data-cursor]");
+      if (interactive === activeTarget) return;
+      activeTarget = interactive;
       ring.classList.toggle("is-active", Boolean(interactive));
     };
 
@@ -469,10 +523,9 @@ export function Cursor() {
     window.addEventListener("pointerdown", onDown);
     window.addEventListener("pointerup", onUp);
     document.addEventListener("pointerleave", onLeave);
-    frame = requestAnimationFrame(tick);
 
     return () => {
-      cancelAnimationFrame(frame);
+      loop.stop();
       document.body.classList.remove("has-custom-cursor");
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerover", onOver);
@@ -490,49 +543,52 @@ export function Cursor() {
   );
 }
 
-/* ─── Атмосфера: зерно плёнки + движущиеся световые пятна ─────── */
+/* ─── Атмосфера: статичные световые пятна + одно пятно за курсором ── */
 
 export function Atmosphere() {
-  const ref = useRef(null);
+  const spotRef = useRef(null);
 
+  /* Пятно двигается только через transform (композитор, без перерисовки)
+     и только пока курсор в движении. Раньше на каждый кадр перекрашивался
+     полноэкранный градиент, а зерно и размытые орбы анимировались вечно. */
   useEffect(() => {
-    const node = ref.current;
-    if (!node || reducedMotion() || coarsePointer()) return undefined;
+    const spot = spotRef.current;
+    if (!spot || reducedMotion() || coarsePointer()) return undefined;
 
-    let frame = 0;
-    let targetX = 50;
-    let targetY = 40;
-    let currentX = 50;
-    let currentY = 40;
+    let targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight * 0.4;
+    let currentX = targetX;
+    let currentY = targetY;
 
-    const tick = () => {
-      currentX = lerp(currentX, targetX, 0.05);
-      currentY = lerp(currentY, targetY, 0.05);
-      node.style.setProperty("--aurora-x", `${currentX.toFixed(2)}%`);
-      node.style.setProperty("--aurora-y", `${currentY.toFixed(2)}%`);
-      frame = requestAnimationFrame(tick);
-    };
+    const loop = createSettleLoop(() => {
+      currentX = lerp(currentX, targetX, 0.08);
+      currentY = lerp(currentY, targetY, 0.08);
+      const settled = Math.abs(currentX - targetX) < 0.5 && Math.abs(currentY - targetY) < 0.5;
+      spot.style.transform = `translate3d(${currentX.toFixed(0)}px, ${currentY.toFixed(0)}px, 0) translate(-50%, -50%)`;
+      return !settled;
+    });
 
     const onMove = (event) => {
-      targetX = (event.clientX / window.innerWidth) * 100;
-      targetY = (event.clientY / window.innerHeight) * 100;
+      targetX = event.clientX;
+      targetY = event.clientY;
+      loop.start();
     };
 
+    spot.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%)`;
     window.addEventListener("pointermove", onMove, { passive: true });
-    frame = requestAnimationFrame(tick);
 
     return () => {
-      cancelAnimationFrame(frame);
+      loop.stop();
       window.removeEventListener("pointermove", onMove);
     };
   }, []);
 
   return (
-    <div className="atmosphere" ref={ref} aria-hidden="true">
+    <div className="atmosphere" aria-hidden="true">
       <span className="atmosphere__aurora" />
+      <span className="atmosphere__spot" ref={spotRef} />
       <span className="atmosphere__orb atmosphere__orb--a" />
       <span className="atmosphere__orb atmosphere__orb--b" />
-      <span className="atmosphere__orb atmosphere__orb--c" />
       <span className="atmosphere__grid" />
       <span className="atmosphere__grain" />
     </div>

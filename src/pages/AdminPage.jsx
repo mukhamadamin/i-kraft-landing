@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "../store/StoreContext";
-import { kraftLogo } from "../assets";
+import { Logo } from "../components/Logo";
 import { ThemeToggle } from "../theme";
 import { Atmosphere } from "../components/motion";
 import { formatDate, shortText } from "../utils/format";
+import { AVAILABILITY, HANDLES, MATERIALS, PRINTS, optionsOf } from "../utils/catalog";
 
 function fieldClass(type) {
   return type === "textarea" ? "field-wide" : "field";
@@ -49,7 +50,7 @@ function AdminLogin({ onSuccess }) {
     <div className="admin-login-screen">
       <Atmosphere />
       <form className={`admin-login-card ${error ? "is-error" : ""}`} onSubmit={submit}>
-        <img src={kraftLogo} alt="" className="admin-login-logo" />
+        <Logo className="admin-login-logo" />
         <h1>Панель управления</h1>
         <p>Введите логин и пароль администратора</p>
 
@@ -213,16 +214,24 @@ function AdminPanel({ onLogout }) {
           },
           { name: "summary", label: "Краткое описание", type: "textarea" },
           { name: "description", label: "Полное описание", type: "textarea" },
-          { name: "specs", label: "Характеристики", type: "textarea" },
-          { name: "minOrder", label: "Минимальный тираж", type: "text" },
+          /* Характеристики — отдельные поля: по ним работают фильтры каталога */
+          { name: "material", label: "Материал", type: "select", options: optionsOf(MATERIALS) },
+          { name: "handles", label: "Ручки", type: "select", options: optionsOf(HANDLES) },
+          { name: "print", label: "Печать", type: "select", options: optionsOf(PRINTS) },
+          { name: "availability", label: "Наличие", type: "select", options: optionsOf(AVAILABILITY) },
+          { name: "sizes", label: "Размеры Ш×Б×В, см (через запятую)", type: "text" },
+          { name: "price", label: "Цена (пусто — «по запросу»)", type: "text" },
+          { name: "minOrder", label: "Тираж", type: "text" },
           { name: "tags", label: "Теги (через запятую)", type: "text" },
-          { name: "image", label: "Изображение URL", type: "text" },
+          { name: "image", label: "Главное фото URL", type: "text" },
+          { name: "gallery", label: "Дополнительные фото (URL с новой строки)", type: "textarea" },
+          { name: "specs", label: "Прочие характеристики (текст)", type: "textarea" },
         ],
         columns: [
           { key: "title", label: "Название" },
           { key: "categoryId", label: "Категория", map: "category" },
-          { key: "minOrder", label: "Тираж" },
-          { key: "summary", label: "Описание" },
+          { key: "sizes", label: "Размеры" },
+          { key: "availability", label: "Наличие", map: "availability" },
         ],
       },
       news: {
@@ -335,6 +344,7 @@ function AdminPanel({ onLogout }) {
     if (!column.map) return value;
     if (column.map === "category") return refs.category[value]?.title || "—";
     if (column.map === "client") return refs.client[value]?.name || "—";
+    if (column.map === "availability") return AVAILABILITY[value] || "—";
     return value;
   };
 
@@ -428,7 +438,7 @@ function AdminPanel({ onLogout }) {
       <header className="admin-header">
         <div className="admin-header-inner">
           <div className="admin-brand">
-            <img src={kraftLogo} alt="" className="admin-brand-logo" />
+            <Logo className="admin-brand-logo" />
             <div>
               <b>{state.settings.companyName || "I-Kraft Pack"}</b>
               <span>Панель управления</span>
@@ -520,7 +530,8 @@ function AdminPanel({ onLogout }) {
               key={`${entity}_${editingId || "new"}_${formNonce}`}
             >
               {def.fields.map((field) => {
-                const defaultValue = editingItem?.[field.name] || "";
+                const rawValue = editingItem?.[field.name];
+                const defaultValue = Array.isArray(rawValue) ? rawValue.join("\n") : rawValue || "";
 
                 if (field.type === "textarea") {
                   return (

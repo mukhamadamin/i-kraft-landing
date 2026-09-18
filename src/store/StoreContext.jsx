@@ -62,6 +62,13 @@ function ensureStateShape(raw) {
     ...item,
     id: item.id || uid("prd"),
     categoryId: item.categoryId || "",
+    material: item.material || "",
+    handles: item.handles || "",
+    print: item.print || "",
+    sizes: item.sizes || "",
+    availability: item.availability || "order",
+    price: item.price || "",
+    gallery: item.gallery || [],
   }));
 
   base.news = base.news.map((item) => ({

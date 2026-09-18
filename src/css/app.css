@@ -17,8 +17,8 @@
   top: 0;
   z-index: 90;
   background: var(--header-bg);
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
   border-bottom: 1px solid var(--line);
 }
 
@@ -104,8 +104,6 @@
   border-radius: var(--r-2xl);
   border: 1px solid var(--line);
   background: var(--surface-grad);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .admin-side-title {
@@ -199,8 +197,6 @@
   border-radius: var(--r-2xl);
   border: 1px solid var(--line);
   background: var(--surface-grad);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .admin-card-head {
@@ -379,8 +375,6 @@
   border-radius: var(--r-3xl);
   border: 1px solid var(--line-strong);
   background: var(--surface-grad);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: var(--sh-lg);
   text-align: center;
   animation: modalIn 0.6s var(--ease-spring) both;
@@ -511,8 +505,6 @@
   border-radius: var(--r-2xl);
   border: 1px solid var(--line);
   background: var(--surface-grad);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .kit-panel,
@@ -607,8 +599,6 @@
   border-radius: var(--r-full);
   border: 1px solid rgba(126, 178, 150, 0.35);
   background: var(--surface-raised);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   color: var(--eco-hi);
   font-size: 0.82rem;
   font-weight: 700;

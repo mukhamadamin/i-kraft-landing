@@ -6,7 +6,6 @@ import { PageLoader } from "./components/PageLoader";
 const lazyPage = (loader, name) => lazy(() => loader().then((mod) => ({ default: mod[name] })));
 
 const HomePage = lazyPage(() => import("./pages/HomePage"), "HomePage");
-const ProductsPage = lazyPage(() => import("./pages/ProductsPage"), "ProductsPage");
 const CatalogPage = lazyPage(() => import("./pages/CatalogPage"), "CatalogPage");
 const CategoriesPage = lazyPage(() => import("./pages/CategoriesPage"), "CategoriesPage");
 const NewsPage = lazyPage(() => import("./pages/NewsPage"), "NewsPage");
@@ -49,7 +48,8 @@ export default function App() {
 
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/products" element={<ProductsPage />} />
+          {/* Отдельная страница «Продукция» дублировала каталог — теперь это один раздел */}
+          <Route path="/products" element={<Navigate to="/catalog" replace />} />
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/news" element={<NewsPage />} />

@@ -12,17 +12,18 @@
   transition:
     padding 0.45s var(--ease-out),
     background 0.45s var(--ease-out),
-    border-color 0.45s var(--ease-out),
-    backdrop-filter 0.45s var(--ease-out);
+    border-color 0.45s var(--ease-out);
   border-bottom: 1px solid transparent;
 }
 
+/* Единственное место с backdrop-filter: одна полоса высотой 60px,
+   радиус уменьшен вдвое — стоимость размытия растёт с радиусом */
 .site-header.is-stuck {
   padding: 0.5rem 0;
   background: var(--header-bg);
   border-bottom-color: var(--line);
-  backdrop-filter: blur(26px) saturate(170%);
-  -webkit-backdrop-filter: blur(26px) saturate(170%);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
 }
 
 .nav-shell {
@@ -89,8 +90,6 @@
   border-radius: var(--r-full);
   border: 1px solid var(--line);
   background: var(--glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .nav-pill {
@@ -200,8 +199,6 @@
   border-radius: var(--r-full);
   border: 1px solid var(--line-strong);
   background: var(--glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   flex-shrink: 0;
 }
 
@@ -288,16 +285,16 @@
   animation: routeIn 0.65s var(--ease-out) both;
 }
 
+/* Без filter: blur — размытие всей страницы при каждом переходе
+   было самым дорогим кадром на сайте */
 @keyframes routeIn {
   from {
     opacity: 0;
     transform: translate3d(0, 16px, 0);
-    filter: blur(6px);
   }
   to {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 
@@ -342,10 +339,8 @@
   width: 46%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(126, 178, 150, 0.22), transparent 68%);
-  filter: blur(46px);
+  background: radial-gradient(closest-side, rgba(126, 178, 150, 0.2), transparent);
   z-index: -1;
-  animation: orbDrift 22s var(--ease-in-out) infinite;
 }
 
 .footer-hero h4 {
@@ -587,8 +582,6 @@
     border-radius: var(--r-2xl);
     border-color: var(--line-strong);
     background: var(--menu-bg);
-    backdrop-filter: blur(30px) saturate(180%);
-    -webkit-backdrop-filter: blur(30px) saturate(180%);
     box-shadow: var(--sh-lg);
     opacity: 0;
     visibility: hidden;

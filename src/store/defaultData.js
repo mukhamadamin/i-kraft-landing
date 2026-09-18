@@ -10,7 +10,7 @@ const photo = (name) => `${import.meta.env.BASE_URL}photos/${name}.jpg`;
 /* Версия набора данных. Состояние сайта живёт в localStorage; когда
    defaultState меняется целиком (новые id, другие коллекции), старое
    сохранённое состояние нужно не мигрировать, а заменить — см. readState. */
-export const dataVersion = 2;
+export const dataVersion = 3;
 
 export const defaultState = {
   dataVersion,
@@ -60,18 +60,27 @@ export const defaultState = {
       image: photo("plain-kraft"),
     },
   ],
+  /* Характеристики товара — отдельные поля, а не текст: по ним работают
+     фильтры каталога. Значения — ключи словарей из utils/catalog.js.
+     sizes: «ширина × боковая × высота» в см, через запятую. */
   products: [
     {
       id: "prd_twisted_kraft",
       title: "Крафт-пакет с кручеными ручками",
       categoryId: "cat_twisted",
-      summary: "Натуральный крафт, кручёные ручки, логотип на лицевой стороне.",
+      summary: "Натуральный крафт, кручёные бумажные ручки, логотип на лицевой стороне.",
       description:
-        "Вместительный и прочный пакет из натурального крафта. Подходит для доставки, подачи на месте и подарков — как у Shirin Tabaka, Beliss Premium Restaurant и Du Chinor. Размер и печать подбираем под ваш бренд.",
-      specs: "Размеры (ширина × боковая × высота): 18×11×23, 30×18×31, 30×15×40 см и другие под заказ; Материал: натуральный крафт; Печать: логотип",
+        "Вместительный и прочный пакет из натурального крафта. Подходит для доставки, подачи на месте и подарков — как у Shirin Tabaka, Beliss Premium Restaurant, Du Chinor и цветочного магазина «Анастасия». Размер и печать подбираем под ваш бренд.",
+      material: "natural",
+      handles: "twisted",
+      print: "logo",
+      sizes: "18×11×23, 30×18×31, 30×15×40",
+      availability: "order",
+      price: "",
       minOrder: "Тираж — по запросу",
       tags: "крафт, ручки, ресторан, логотип",
       image: photo("shirin-tabaka"),
+      gallery: [photo("du-chinor"), photo("bellis"), photo("anastasiya")],
     },
     {
       id: "prd_twisted_white",
@@ -80,10 +89,16 @@ export const defaultState = {
       summary: "Белая основа, на которой логотип читается ярче всего.",
       description:
         "Белый крафт — как чистый лист для вашего бренда. Универсальный пакет для повседневных покупок и подарочной подачи: такие делали для «Орехового Сада» и Rusan — Именные подарки.",
-      specs: "Размеры (ширина × боковая × высота): 22×12×30, 32×12×42 см и другие под заказ; Материал: белый крафт; Печать: логотип",
+      material: "white",
+      handles: "twisted",
+      print: "logo",
+      sizes: "22×12×30, 32×12×42",
+      availability: "order",
+      price: "",
       minOrder: "Тираж — по запросу",
       tags: "белый крафт, ручки, подарки",
       image: photo("orexoviy-sad"),
+      gallery: [photo("rusan")],
     },
     {
       id: "prd_sos_kraft",
@@ -91,11 +106,17 @@ export const defaultState = {
       categoryId: "cat_nohandle",
       summary: "Прямоугольное дно, устойчиво стоит — для фастфуда, доставки и супермаркетов.",
       description:
-        "Формат, который выбирают бургерные и магазины: Rich Burger, BBQ Burger, Ipak Yo'li Supermarket. Печать логотипа, контактов и QR-кода на лицевой и боковых сторонах.",
-      specs: "Размеры (ширина × боковая × высота): 18×10×27, 24×15×32, 27×15×30 см и другие под заказ; Материал: натуральный крафт; Печать: логотип, контакты, QR",
+        "Формат, который выбирают бургерные и магазины: Rich Burger, Ipak Yo'li Supermarket. Печать логотипа, контактов и QR-кода на лицевой и боковых сторонах.",
+      material: "natural",
+      handles: "none",
+      print: "logo",
+      sizes: "18×10×27, 24×15×32, 27×15×30",
+      availability: "order",
+      price: "",
       minOrder: "Тираж — по запросу",
       tags: "без ручек, фастфуд, доставка",
       image: photo("ipak-yoli"),
+      gallery: [photo("rich-burger")],
     },
     {
       id: "prd_sos_white",
@@ -104,10 +125,16 @@ export const defaultState = {
       summary: "Белая основа для яркого фирменного цвета — как у Chicken Eleven.",
       description:
         "Прочный белый крафт, чёткий цветной логотип и оптимальные размеры под заказ на вынос. Сохраняет атмосферу бренда даже вне ресторана.",
-      specs: "Размеры (ширина × боковая × высота): 24×15×32 см и другие под заказ; Материал: белый крафт; Печать: логотип",
+      material: "white",
+      handles: "none",
+      print: "logo",
+      sizes: "24×15×32",
+      availability: "order",
+      price: "",
       minOrder: "Тираж — по запросу",
       tags: "без ручек, белый крафт, фастфуд",
       image: photo("chicken-eleven"),
+      gallery: [],
     },
     {
       id: "prd_fullcolor",
@@ -116,22 +143,34 @@ export const defaultState = {
       summary: "Фирменный цвет по всей поверхности и паттерн на боковых сторонах.",
       description:
         "Когда нужен не просто логотип, а фирменный цвет целиком — как бордовый пакет BBQ Burger с паттерном на боковинах и QR-кодом на лицевой стороне.",
-      specs: "Размеры (ширина × боковая × высота): 27×15×30 см и другие под заказ; Материал: крафт; Печать: полноцветная, паттерн",
+      material: "natural",
+      handles: "none",
+      print: "fullcolor",
+      sizes: "27×15×30",
+      availability: "order",
+      price: "",
       minOrder: "Тираж — по запросу",
       tags: "полноцвет, паттерн, бургерная",
       image: photo("bbq-burger"),
+      gallery: [],
     },
     {
       id: "prd_appetit",
       title: "Пакеты «Приятного аппетита»",
       categoryId: "cat_nohandle",
-      summary: "Готовый дизайн для фастфуда и доставки — два размера.",
+      summary: "Готовый дизайн для фастфуда и доставки — два размера, можно заказать без своего макета.",
       description:
         "Крафтовые пакеты с надписью «Приятного аппетита» и паттерном из еды. Идеально подходят для фастфуда и доставки, когда собственный дизайн ещё не готов. Эстетично, удобно и экологично.",
-      specs: "Большой: 24×15×32 см; Маленький: 18×15×27 см (ширина × боковая × высота); Материал: натуральный крафт; Печать: готовый дизайн",
-      minOrder: "Готовый дизайн",
-      tags: "готовый дизайн, фастфуд, доставка",
+      material: "natural",
+      handles: "none",
+      print: "ready",
+      sizes: "18×15×27, 24×15×32",
+      availability: "stock",
+      price: "",
+      minOrder: "Тираж — по запросу",
+      tags: "готовый дизайн, фастфуд, доставка, в наличии",
       image: photo("priyatnogo-appetita"),
+      gallery: [],
     },
     {
       id: "prd_plain",
@@ -140,10 +179,16 @@ export const defaultState = {
       summary: "Чистый крафт — универсальный холст для любых идей.",
       description:
         "Аккуратный, практичный и подходящий под любой стиль. Для кафе, магазинов, доставки и подарочной упаковки. Когда форма проста — возможности безграничны.",
-      specs: "Размеры (ширина × боковая × высота): 18×10×27 см; Материал: натуральный крафт; Печать: без печати",
-      minOrder: "В наличии",
+      material: "natural",
+      handles: "none",
+      print: "none",
+      sizes: "18×10×27",
+      availability: "stock",
+      price: "",
+      minOrder: "Тираж — по запросу",
       tags: "без печати, крафт, в наличии",
       image: photo("plain-kraft"),
+      gallery: [],
     },
   ],
   news: [

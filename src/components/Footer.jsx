@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
 import { useStore } from "../store/StoreContext";
-import { kraftLogo } from "../assets";
+import { Logo } from "./Logo";
 import { Magnetic, Reveal } from "./motion";
 
 const featuredLinks = [
   { to: "/", label: "Главная" },
-  { to: "/products", label: "Продукция" },
   { to: "/catalog", label: "Каталог" },
   { to: "/news", label: "Новости" },
   { to: "/works", label: "Наши работы" },
@@ -81,7 +80,7 @@ export function Footer() {
         <div className="footer-columns">
           <div className="footer-brand-col">
             <Link to="/" className="brand">
-              <img src={kraftLogo} alt="" className="brand-logo-img" />
+              <Logo className="brand-logo-img" />
               <span className="brand-stack">
                 <span className="brand-name">{settings.companyName || "I-Kraft Pack"}</span>
                 <span className="brand-sub">{settings.slogan || "Крафтовая упаковка"}</span>

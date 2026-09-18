@@ -13,8 +13,6 @@
   border-radius: var(--r-full);
   border: 1px solid var(--line-strong);
   background: var(--glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   color: var(--paper-dim);
   font-size: 0.68rem;
   font-weight: 700;
@@ -34,15 +32,14 @@
   flex-shrink: 0;
 }
 
+/* Только opacity: анимация box-shadow перерисовывала каждый бейдж 60 раз в секунду */
 @keyframes pulseDot {
   0%,
   100% {
-    box-shadow: 0 0 0 3px rgba(126, 178, 150, 0.15);
     opacity: 1;
   }
   50% {
-    box-shadow: 0 0 0 7px rgba(126, 178, 150, 0);
-    opacity: 0.65;
+    opacity: 0.45;
   }
 }
 
@@ -124,8 +121,6 @@
   color: var(--paper);
   background: var(--glass-strong);
   border: 1px solid var(--line-strong);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: none;
 }
 
@@ -283,9 +278,9 @@ a.chip:hover,
   flex-direction: column;
   border-radius: var(--r-2xl);
   border: 1px solid var(--line);
-  background: var(--surface-grad);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  /* Непрозрачная подложка вместо backdrop-filter: размытие фона под
+     каждой карточкой пересчитывалось на каждый кадр */
+  background: var(--surface-grad), var(--card-bg);
   overflow: hidden;
   isolation: isolate;
   transition:
@@ -368,20 +363,11 @@ a.chip:hover,
   object-fit: cover;
   display: block;
   transform: scale(1.02);
-  filter: saturate(0.85) contrast(1.05);
-  transition:
-    transform 0.9s var(--ease-out),
-    filter 0.6s var(--ease-out);
+  transition: transform 0.9s var(--ease-out);
 }
 
 .card:hover .card-media img {
   transform: scale(1.09);
-  filter: saturate(1.05) contrast(1.02);
-}
-
-:root[data-theme="light"] .card-media img,
-:root[data-theme="light"] .card:hover .card-media img {
-  filter: none;
 }
 
 .image-fallback {
@@ -635,9 +621,7 @@ a.chip:hover,
   padding: 1.9rem;
   border-radius: var(--r-2xl);
   border: 1px solid var(--line);
-  background: var(--glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--glass), var(--card-bg);
 }
 
 .sidebar-card h3 {
@@ -798,8 +782,6 @@ a.chip:hover,
   border-radius: var(--r-lg);
   border: 1px solid var(--line-strong);
   background: var(--surface-raised);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   color: var(--paper);
   font-size: 0.88rem;
   font-weight: 650;

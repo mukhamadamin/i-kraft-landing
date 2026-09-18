@@ -198,11 +198,9 @@ const faqItems = [
 /* ─── Процесс производства ────────────────────────────────────── */
 
 function ProcessSection() {
-  const [ref, progress] = useSectionProgress();
-  const activeIndex = Math.min(
-    processSteps.length - 1,
-    Math.floor(progress * processSteps.length + 0.0001),
-  );
+  /* Дробный прогресс хук пишет в --progress прямо на .process,
+     ререндер случается только при смене активного шага */
+  const [ref, activeIndex] = useSectionProgress(processSteps.length);
 
   return (
     <section className="section container">
@@ -211,7 +209,7 @@ function ProcessSection() {
         title="Как рождается ваш пакет"
         subtitle="Четыре шага от брифа до паллеты на складе — без сюрпризов в цене и сроках."
       />
-      <div className="process" style={{ "--progress": progress }}>
+      <div className="process" ref={ref}>
         <div className="process__aside">
           <div className="process__counter">
             {String(activeIndex + 1).padStart(2, "0")}
@@ -222,7 +220,7 @@ function ProcessSection() {
           </div>
         </div>
 
-        <div className="process__steps" ref={ref}>
+        <div className="process__steps">
           {processSteps.map((step, index) => (
             <Reveal
               key={step.no}
@@ -522,9 +520,9 @@ export function HomePage() {
           title="Популярные позиции"
           link={{ to: "/catalog", label: "Весь каталог" }}
         />
-        <Stagger className="grid-cards" step={90}>
+        <Stagger className="catalog__grid" step={90}>
           {products.slice(0, 3).map((item) => (
-            <ProductCard key={item.id} item={item} categoryName={categoryMap[item.categoryId]} />
+            <ProductCard key={item.id} item={item} categoryName={categoryMap[item.categoryId]} settings={settings} />
           ))}
           {!products.length && <EmptyState text="Товары можно добавить в панели управления." />}
         </Stagger>

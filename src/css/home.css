@@ -98,8 +98,6 @@
   border: 1px solid var(--line);
   background: var(--line);
   overflow: hidden;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .info-cell {
@@ -170,8 +168,7 @@
   width: 78%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(217, 168, 108, 0.26), rgba(126, 178, 150, 0.07) 45%, transparent 70%);
-  filter: blur(38px);
+  background: radial-gradient(closest-side, rgba(217, 168, 108, 0.22), rgba(126, 178, 150, 0.06) 50%, transparent);
   animation: bagGlowPulse 7s var(--ease-in-out) infinite;
 }
 
@@ -472,8 +469,7 @@
   width: 260px;
   height: 44px;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55), transparent 70%);
-  filter: blur(16px);
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.5), transparent);
   animation: shadowPulse 7s var(--ease-in-out) infinite;
 }
 
@@ -501,8 +497,6 @@
   border-radius: var(--r-lg);
   border: 1px solid var(--line-strong);
   background: var(--surface-raised);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
   box-shadow: var(--sh-md);
   animation: levitate 6s var(--ease-in-out) infinite;
   transition:
@@ -670,8 +664,6 @@
   border-radius: var(--r-2xl);
   border: 1px solid var(--line);
   background: var(--surface-grad);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   overflow: hidden;
   isolation: isolate;
   transition:
@@ -829,7 +821,6 @@
   height: 84px;
   border-radius: 50%;
   mix-blend-mode: screen;
-  filter: blur(1px);
   animation: plateDrift 7s var(--ease-in-out) infinite;
 }
 
